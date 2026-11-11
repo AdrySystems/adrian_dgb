@@ -1,0 +1,2468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pensamiento Matemático III - Plataforma Interactiva</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- KaTeX for math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        html:not(.dark) .custom-scrollbar::-webkit-scrollbar-track {
+            background: #e2e8f0;
+        }
+        html:not(.dark) .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+
+        html.dark .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        html.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        .theme-toggle-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 64px;
+            height: 32px;
+            border-radius: 9999px;
+            padding: 0 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .theme-toggle-thumb {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        html.dark .theme-toggle-thumb {
+            transform: translateX(32px);
+            background-color: #1e293b;
+        }
+
+        .presentation-fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 99999 !important;
+            background-color: #0f172a !important;
+            padding: 1.5rem !important;
+            overflow-y: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            border-radius: 0 !important;
+            border: none !important;
+        }
+
+        /* Ocultar la estructura de reporte en pantalla normal */
+        .print-only-report {
+            display: none;
+        }
+
+        /* Configuración de Impresión / PDF */
+        @media print {
+            @page {
+                size: letter landscape;
+                margin: 0mm;
+            }
+
+            .no-print, header, footer, main > *:not(.print-only-report) {
+                display: none !important;
+            }
+
+            body {
+                background-color: white !important;
+                color: #0f172a !important;
+                font-family: 'Inter', sans-serif !important;
+                padding: 1cm 1.5cm !important;
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            a[href]:after {
+                content: "" !important;
+            }
+
+            .print-only-report {
+                display: block !important;
+                width: 100% !important;
+            }
+
+            .report-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }
+
+            .report-table th {
+                background-color: #f1f5f9 !important;
+                color: #0f172a !important;
+                font-weight: 700;
+                text-transform: uppercase;
+                font-size: 9px;
+                letter-spacing: 0.05em;
+                padding: 8px;
+                border: 1px solid #cbd5e1;
+                text-align: left;
+            }
+
+            .report-table td {
+                padding: 8px;
+                border: 1px solid #e2e8f0;
+                font-size: 10px;
+                vertical-align: top;
+            }
+
+            /* Estilo con viñetas para la columna de contenidos en la vista de impresión */
+            .report-list {
+                margin: 0;
+                padding-left: 14px;
+                list-style-type: disc;
+            }
+
+            .report-list li {
+                margin-bottom: 2px;
+                line-height: 1.3;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white/90 dark:bg-slate-800/80 backdrop-blur border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-3 bg-blue-600 rounded-xl text-white shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid font-bold text-2xl fa-calculator"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        Pensamiento Matemático III
+                        <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300 border border-blue-200 dark:border-blue-500/30">3er Semestre</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Pensamiento algebraico e introducción a geometría plana • 4 Horas/Semana</p>
+                </div>
+            </div>
+
+            <!-- Header Actions & Controls -->
+            <div class="flex flex-wrap items-center gap-3 text-xs">
+                <!-- Botones Imprimir y PDF -->
+                <div class="flex items-center gap-2 no-print">
+                    <button onclick="window.print()" class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 transition shadow-sm focus:outline-none" title="Imprimir programa">
+                        <i class="fa-solid fa-print text-slate-500 dark:text-slate-400"></i>
+                        <span>Imprimir</span>
+                    </button>
+                    
+                    <button onclick="window.print()" class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-xl bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 transition shadow-sm focus:outline-none" title="Guardar como PDF">
+                        <i class="fa-solid fa-file-pdf text-red-500"></i>
+                        <span>Guardar PDF</span>
+                    </button>
+                </div>
+
+                <!-- Theme Switcher -->
+                <button id="theme-toggle" onclick="toggleTheme()" class="theme-toggle-btn bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 focus:outline-none no-print" title="Cambiar Tema (Claro / Oscuro)">
+                    <i class="fa-solid fa-sun text-amber-500 text-xs flex items-center justify-center w-5"></i>
+                    <i class="fa-solid fa-moon text-indigo-300 text-xs flex items-center justify-center w-5"></i>
+                    <div class="theme-toggle-thumb">
+                        <i id="theme-icon" class="fa-solid fa-sun text-amber-500 text-[10px]"></i>
+                    </div>
+                </button>
+
+                <!-- Badge del Profesor Titular -->
+                <div class="flex items-center gap-2 text-xs bg-slate-100 dark:bg-slate-900/60 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <i class="fa-solid fa-user-tie text-blue-500 dark:text-blue-400"></i>
+                    <span class="text-slate-500 dark:text-slate-400">Profesor:</span>
+                    <span class="font-bold text-slate-800 dark:text-white">Dr. Adrian Cipriano Lara</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Bar & Navigation Tabs -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 border-t border-slate-200 dark:border-slate-700/50 pt-2 overflow-x-auto custom-scrollbar no-print">
+            <div class="flex gap-1">
+                <button onclick="switchTab('tab-curriculum')" id="btn-tab-curriculum" class="tab-btn px-4 py-2.5 text-sm font-medium rounded-t-lg transition flex items-center gap-2 bg-blue-600 text-white shadow-sm">
+                    <i class="fa-solid fa-table"></i> Tabla Curricular
+                </button>
+                <button onclick="switchTab('tab-presentaciones')" id="btn-tab-presentaciones" class="tab-btn px-4 py-2.5 text-sm font-medium rounded-t-lg transition flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800">
+                    <i class="fa-solid fa-file-powerpoint text-amber-500"></i> Presentaciones de Clase
+                </button>
+                <button onclick="switchTab('tab-lab')" id="btn-tab-lab" class="tab-btn px-4 py-2.5 text-sm font-medium rounded-t-lg transition flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800">
+                    <i class="fa-solid fa-flask"></i> Laboratorio Interactivo
+                </button>
+                <button onclick="switchTab('tab-quiz')" id="btn-tab-quiz" class="tab-btn px-4 py-2.5 text-sm font-medium rounded-t-lg transition flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800">
+                    <i class="fa-solid fa-pen-to-square"></i> Autoevaluación
+                </button>
+                <button onclick="switchTab('tab-ai')" id="btn-tab-ai" class="tab-btn px-4 py-2.5 text-sm font-medium rounded-t-lg transition flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800">
+                    <i class="fa-solid fa-robot text-indigo-500 dark:text-indigo-400"></i> Tutor IA
+                </button>
+            </div>
+
+            <div class="flex items-center gap-3 text-xs py-1">
+                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-200/70 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700">
+                    <i class="fa-solid fa-list-check text-emerald-600 dark:text-emerald-400"></i>
+                    <span class="text-slate-500 dark:text-slate-400">Progreso:</span>
+                    <span id="global-progress-text" class="font-bold text-slate-900 dark:text-white">0 / 6</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- REPORTE EXCLUSIVO PARA IMPRESIÓN Y PDF (LANDSCAPE) -->
+        <div class="print-only-report">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2563eb; padding-bottom: 8px; margin-bottom: 12px;">
+                <div>
+                    <h1 style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 0;">PROGRAMA CURRICULAR • PENSAMIENTO MATEMÁTICO III</h1>
+                    <p style="font-size: 10px; color: #475569; margin: 2px 0 0 0;">Centro de Estudios de Bachillerato 9/18 • Dirección General del Bachillerato (DGB)</p>
+                </div>
+                <div style="text-align: right; font-size: 9px; color: #64748b;">
+                    <p style="margin: 0;"><strong>Ciclo Escolar:</strong> 2026-2027</p>
+                    <p style="margin: 2px 0 0 0;"><strong>Profesor Titular:</strong> Dr. Adrian Cipriano Lara</p>
+                </div>
+            </div>
+
+            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; border-radius: 6px; font-size: 10px; margin-bottom: 10px; color: #334155;">
+                <strong>Meta Educativa:</strong> "Aplique el lenguaje algebraico como herramienta para describir situaciones de la realidad y expresar relaciones matemáticas, y mediante procesos de intuición y razonamiento, logre explicar y resolver problemas."
+            </div>
+
+            <!-- Tabla de Impresión Horizontal con Viñetas -->
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">#</th>
+                        <th style="width: 40%;">Propósito Formativo</th>
+                        <th style="width: 55%;">Contenidos Formativos Programáticos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1</strong></td>
+                        <td>Aplica la aritmética y el manejo del álgebra para encontrar el valor de una incógnita en ecuaciones lineales que refieran a situaciones de interés.</td>
+                        <td>
+                            <ul class="report-list">
+                                <li>Concepto de ecuación y sus partes</li>
+                                <li>Ecuaciones lineales de primer grado</li>
+                                <li>Procedimiento para encontrar el valor de una incógnita</li>
+                                <li>Forma estándar de las ecuaciones lineales</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>2</strong></td>
+                        <td>Aplica la aritmética y el manejo del álgebra para resolver ecuaciones lineales con dos incógnitas que refieran a situaciones de interés.</td>
+                        <td>
+                            <ul class="report-list">
+                                <li>Ecuaciones lineales con dos incógnitas</li>
+                                <li>Procedimiento para solucionar ecuaciones lineales con dos incógnitas</li>
+                                <li>Ecuación de la recta</li>
+                                <li>Concepto de plano cartesiano: ejes perpendiculares (X, Y)</li>
+                                <li>Representación gráfica de la ecuación de la recta</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>3</strong></td>
+                        <td>Aplica la aritmética, el manejo del álgebra y el método gráfico para resolver sistemas de ecuaciones lineales que refieran a situaciones de interés.</td>
+                        <td>
+                            <ul class="report-list">
+                                <li>Método de igualación</li>
+                                <li>Método de sustitución</li>
+                                <li>Método de reducción</li>
+                                <li>Método gráfico</li>
+                                <li>Método por determinantes (Regla de Cramer)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>4</strong></td>
+                        <td>Aplica la aritmética y el manejo del álgebra para resolver ecuaciones cuadráticas que refieran a situaciones de interés.</td>
+                        <td>
+                            <ul class="report-list">
+                                <li>Ecuaciones cuadráticas</li>
+                                <li>Forma general de la ecuación cuadrática</li>
+                                <li>Resolución por método de completar cuadrados</li>
+                                <li>Aplicación de fórmula general para ecuaciones cuadráticas (Bhaskara)</li>
+                                <li>Representación gráfica y parábola</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>5</strong></td>
+                        <td>Expresa y resuelve diversas situaciones de interés a través de distintos tipos de ecuaciones para comprender su relevancia en otras áreas del conocimiento.</td>
+                        <td>
+                            <ul class="report-list">
+                                <li>Cálculo de intereses simples y compuestos en finanzas personales</li>
+                                <li>Descripción del crecimiento poblacional o propagación de fenómenos (ej. epidemia)</li>
+                                <li>Determinar medidas o cantidades de material en proyectos de arquitectura</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>6</strong></td>
+                        <td>Revisa el teorema del triángulo de Napoleón, considerándolo como un problema-meta para aplicar resultados de la geometría euclidiana.</td>
+                        <td>
+                            <ul class="report-list">
+                                <li>Introducción a la geometría plana</li>
+                                <li>Ángulos, definición, tipos y componentes</li>
+                                <li>Teorema de Pitágoras</li>
+                                <li>Construcción de triángulos rectángulos</li>
+                                <li>Criterios de congruencia y semejanza de triángulos</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="margin-top: 20px; border-top: 1px solid #cbd5e1; padding-top: 10px; display: flex; justify-content: space-between; align-items: flex-end; font-size: 9px; color: #64748b;">
+                <div>
+                    <p style="margin: 0; font-weight: 600;">Dirección General del Bachillerato • CEB 9/18</p>
+                    <p style="margin: 2px 0 0 0;">Documento oficial generado desde la plataforma académica.</p>
+                </div>
+                <div style="text-align: right;">
+                    <div style="border-top: 1px solid #94a3b8; width: 160px; text-align: center; padding-top: 2px; margin-bottom: 2px; font-weight: 700; color: #0f172a;">
+                        Dr. Adrian Cipriano Lara
+                    </div>
+                    <span>Firma Titular de Asignatura</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Educational Meta Banner -->
+        <div class="mb-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 dark:from-slate-800 dark:via-blue-950/40 dark:to-slate-800 border border-blue-200 dark:border-blue-500/20 rounded-2xl p-4 sm:p-6 shadow-sm dark:shadow-xl relative overflow-hidden transition-colors duration-300">
+            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="flex items-start gap-4">
+                <div class="p-3 bg-blue-100 dark:bg-blue-500/10 border border-blue-300 dark:border-blue-500/30 text-blue-600 dark:text-blue-400 rounded-xl mt-1 hidden sm:block">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">Meta Educativa del Curso</span>
+                    <p class="text-slate-700 dark:text-slate-200 text-sm sm:text-base mt-1 font-medium leading-relaxed">
+                        "Aplique el lenguaje algebraico como herramienta para describir situaciones de la realidad y expresar relaciones matemáticas, y mediante procesos de intuición y razonamiento, logre explicar y resolver problemas."
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 1: CURRICULUM TABLE -->
+        <section id="tab-curriculum" class="tab-content space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 bg-white dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors duration-300">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="table-search" oninput="filterCurriculumTable()" placeholder="Buscar por propósito o contenido formativo..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap"><i class="fa-solid fa-filter"></i> Filtrar:</span>
+                    <select id="status-filter" onchange="filterCurriculumTable()" class="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500">
+                        <option value="all">Todos los propósitos</option>
+                        <option value="pending">Pendientes</option>
+                        <option value="completed">Completados</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl overflow-hidden transition-colors duration-300">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
+                                <th class="py-4 px-4 sm:px-6 w-16 text-center">#</th>
+                                <th class="py-4 px-4 sm:px-6 w-5/12">Propósito Formativo</th>
+                                <th class="py-4 px-4 sm:px-6 w-5/12">Contenidos Formativos</th>
+                                <th class="py-4 px-4 sm:px-6 w-32 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="curriculum-table-body" class="divide-y divide-slate-200 dark:divide-slate-700/60 text-sm">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: PRESENTACIONES PROFESIONALES DE CLASE -->
+        <section id="tab-presentaciones" class="tab-content hidden space-y-6">
+            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl p-6 shadow-xl border border-slate-700 relative overflow-hidden">
+                <div class="absolute right-0 top-0 bottom-0 w-1/3 bg-blue-600/10 blur-3xl pointer-events-none"></div>
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
+                    <div>
+                        <div class="flex items-center gap-2 text-amber-400 font-semibold text-xs tracking-wider uppercase mb-1">
+                            <i class="fa-solid fa-award"></i> Recursos del profesor
+                        </div>
+                        <h2 class="text-2xl font-bold tracking-tight">Recursos de Clases Interactivas</h2>
+                        <p class="text-xs text-slate-300 mt-1 max-w-2xl">
+                            Contenido didáctico desarrollado por el profesor para alumnos de 3.º semestre.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="toggleFullscreenPresentation()" id="btn-fullscreen-pres" class="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition flex items-center gap-2 shadow-lg shadow-indigo-600/30">
+                            <i class="fa-solid fa-expand" id="fullscreen-icon"></i>
+                            <span id="fullscreen-text">Pantalla Completa</span>
+                        </button>
+                        <span class="px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-600 text-xs text-slate-200 font-medium flex items-center gap-2">
+                            <i class="fa-solid fa-user-tie text-blue-400"></i> Dr. Adrian Cipriano Lara
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                <button onclick="selectPresentationUnit(1)" id="pres-nav-1" class="pres-nav-btn p-3 rounded-xl border text-left transition flex flex-col justify-between h-20 bg-blue-600 text-white border-blue-500 shadow-md">
+                    <span class="text-[10px] uppercase font-bold text-blue-200">Clase 01</span>
+                    <span class="text-xs font-semibold leading-tight line-clamp-2">Ecuaciones Lineales (1 Var)</span>
+                </button>
+                <button onclick="selectPresentationUnit(2)" id="pres-nav-2" class="pres-nav-btn p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-blue-400 text-left transition flex flex-col justify-between h-20">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Clase 02</span>
+                    <span class="text-xs font-semibold leading-tight line-clamp-2">Ecuación de la Recta</span>
+                </button>
+                <button onclick="selectPresentationUnit(3)" id="pres-nav-3" class="pres-nav-btn p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-blue-400 text-left transition flex flex-col justify-between h-20">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Clase 03</span>
+                    <span class="text-xs font-semibold leading-tight line-clamp-2">Sistemas 2x2 & Cramer</span>
+                </button>
+                <button onclick="selectPresentationUnit(4)" id="pres-nav-4" class="pres-nav-btn p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-blue-400 text-left transition flex flex-col justify-between h-20">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Clase 04</span>
+                    <span class="text-xs font-semibold leading-tight line-clamp-2">Ecuaciones Cuadráticas</span>
+                </button>
+                <button onclick="selectPresentationUnit(5)" id="pres-nav-5" class="pres-nav-btn p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-blue-400 text-left transition flex flex-col justify-between h-20">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Clase 05</span>
+                    <span class="text-xs font-semibold leading-tight line-clamp-2">Aplicaciones Reales</span>
+                </button>
+                <button onclick="selectPresentationUnit(6)" id="pres-nav-6" class="pres-nav-btn p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-blue-400 text-left transition flex flex-col justify-between h-20">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Clase 06</span>
+                    <span class="text-xs font-semibold leading-tight line-clamp-2">Geometría & Napoleón</span>
+                </button>
+            </div>
+
+            <div id="presentation-deck-box" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden transition-all duration-300">
+                <div class="bg-slate-100 dark:bg-slate-900/90 px-6 py-4 border-b border-slate-200 dark:border-slate-700/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span id="pres-unit-badge" class="px-2.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[11px] font-bold uppercase border border-blue-200 dark:border-blue-700">UNIDAD 01</span>
+                            <h3 id="pres-class-title" class="text-base font-bold text-slate-900 dark:text-white">Modelación Algebraica y Ecuaciones Lineales</h3>
+                        </div>
+                        <p id="pres-class-subtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Estructura, axiomas de igualdad y resolución de incógnitas</p>
+                    </div>
+
+                    <div class="flex items-center gap-2 self-end sm:self-auto">
+                        <button onclick="prevSlide()" id="btn-prev-slide" class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed">
+                            <i class="fa-solid fa-chevron-left"></i> Anterior
+                        </button>
+                        <span id="pres-slide-indicator" class="text-xs font-bold px-3 py-1.5 bg-white dark:bg-slate-800 rounded-md border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 shadow-sm">
+                            Diapositiva 1 / 4
+                        </span>
+                        <button onclick="nextSlide()" id="btn-next-slide" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-blue-500/20">
+                            Siguiente <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-6 sm:p-8 min-h-[440px] bg-slate-50/50 dark:bg-slate-850/40 flex flex-col justify-between" id="slide-content-area">
+                </div>
+
+                <div class="bg-slate-100/90 dark:bg-slate-900/90 p-4 border-t border-slate-200 dark:border-slate-700/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                    <div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                        <i class="fa-solid fa-lightbulb text-amber-500 text-base"></i>
+                        <span class="font-semibold text-slate-800 dark:text-slate-200">Nota Didáctica:</span>
+                        <span id="pres-speaker-note" class="text-slate-600 dark:text-slate-400 italic">Analizar la balanza de igualdad antes de realizar trasposiciones directas.</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">Presentación desarrollada por el profesor • Pensamiento Matemático III</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: INTERACTIVE LAB -->
+        <section id="tab-lab" class="tab-content hidden space-y-6">
+            <div class="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                <button onclick="switchLabUnit(1)" id="lab-btn-1" class="unit-lab-btn bg-blue-600 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-2 shadow-sm">
+                    <span>U1</span> Ecuaciones Lineales (1 incógnita)
+                </button>
+                <button onclick="switchLabUnit(2)" id="lab-btn-2" class="unit-lab-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-2">
+                    <span>U2</span> Ecuación de la Recta
+                </button>
+                <button onclick="switchLabUnit(3)" id="lab-btn-3" class="unit-lab-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-2">
+                    <span>U3</span> Sistemas 2x2
+                </button>
+                <button onclick="switchLabUnit(4)" id="lab-btn-4" class="unit-lab-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-2">
+                    <span>U4</span> Ecuaciones Cuadráticas
+                </button>
+                <button onclick="switchLabUnit(5)" id="lab-btn-5" class="unit-lab-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-2">
+                    <span>U5</span> Aplicaciones Reales
+                </button>
+                <button onclick="switchLabUnit(6)" id="lab-btn-6" class="unit-lab-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-2">
+                    <span>U6</span> Geometría & Napoleón
+                </button>
+            </div>
+
+            <!-- UNIT 1 INTERACTIVE SOLVER -->
+            <div id="unit-lab-1" class="unit-lab-view bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl space-y-6 transition-colors duration-300">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-equals text-blue-600 dark:text-blue-400"></i> Solucionador Paso a Paso: Ecuación Lineal $ax + b = c$
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Ingresa los coeficientes para resolver $ax + b = c$ e identificar cada parte del procedimiento.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
+                        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Coeficientes de la Ecuación</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs text-slate-500 dark:text-slate-400">Coeficiente $a$ (de la variable $x$):</label>
+                                <input type="number" id="u1-a" value="4" step="any" oninput="solveLinearEquation()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-500 dark:text-slate-400">Término independiente $b$:</label>
+                                <input type="number" id="u1-b" value="-12" step="any" oninput="solveLinearEquation()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-500 dark:text-slate-400">Constante $c$ (lado derecho):</label>
+                                <input type="number" id="u1-c" value="20" step="any" oninput="solveLinearEquation()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                        <button onclick="randomizeLinearEquation()" class="w-full py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 transition flex items-center justify-center gap-2 font-medium">
+                            <i class="fa-solid fa-shuffle"></i> Generar Ejemplo Aleatorio
+                        </button>
+                    </div>
+
+                    <div class="md:col-span-2 bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
+                        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Procedimiento Paso a Paso</h3>
+                        <div id="u1-equation-display" class="p-3 bg-white dark:bg-slate-800/80 rounded-lg border border-slate-200 dark:border-slate-700 text-center text-lg font-bold text-blue-600 dark:text-blue-400 shadow-sm"></div>
+                        <div id="u1-steps" class="space-y-3 text-sm text-slate-700 dark:text-slate-300"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UNIT 2 INTERACTIVE GRAPH -->
+            <div id="unit-lab-2" class="unit-lab-view hidden bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl space-y-6 transition-colors duration-300">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-emerald-600 dark:text-emerald-400"></i> Plano Cartesiano y Ecuación de la Recta ($y = mx + b$)
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Ajusta la pendiente ($m$) y la ordenada al origen ($b$) para observar la representación gráfica dinámica.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-5">
+                        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Parámetros de la Recta</h3>
+                        
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-700 dark:text-slate-300 mb-1">
+                                <span>Pendiente ($m$):</span>
+                                <span id="u2-m-val" class="font-bold text-emerald-600 dark:text-emerald-400">2.0</span>
+                            </div>
+                            <input type="range" id="u2-m" min="-5" max="5" step="0.5" value="2" oninput="drawLinearGraph()" class="w-full accent-emerald-500">
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs text-slate-700 dark:text-slate-300 mb-1">
+                                <span>Ordenada al origen ($b$):</span>
+                                <span id="u2-b-val" class="font-bold text-emerald-600 dark:text-emerald-400">-1.0</span>
+                            </div>
+                            <input type="range" id="u2-b" min="-8" max="8" step="0.5" value="-1" oninput="drawLinearGraph()" class="w-full accent-emerald-500">
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-800 p-4 rounded-lg space-y-2 text-xs border border-slate-200 dark:border-slate-700">
+                            <div class="text-slate-500 dark:text-slate-400">Ecuación Actual:</div>
+                            <div id="u2-eq-text" class="text-sm font-bold text-emerald-600 dark:text-emerald-400">y = 2x - 1</div>
+                            <hr class="border-slate-200 dark:border-slate-700">
+                            <div><strong>Corte eje Y:</strong> <span id="u2-y-intercept">(0, -1)</span></div>
+                            <div><strong>Corte eje X:</strong> <span id="u2-x-intercept">(0.5, 0)</span></div>
+                            <div><strong>Inclinación:</strong> <span id="u2-slope-type">Creciente (m &gt; 0)</span></div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center relative">
+                        <canvas id="canvas-u2" width="500" height="400" class="w-full max-w-[500px] h-[350px] bg-white dark:bg-slate-950 rounded-lg border border-slate-300 dark:border-slate-800 cursor-crosshair transition-colors duration-300"></canvas>
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400 mt-2">Plano cartesiano interactivo: Ejes X (horizontal) e Y (vertical)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UNIT 3 SYSTEM OF EQUATIONS 2x2 -->
+            <div id="unit-lab-3" class="unit-lab-view hidden bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl space-y-6 transition-colors duration-300">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-project text-amber-600 dark:text-amber-400"></i> Sistemas de Ecuaciones Lineales 2x2
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Resuelve sistemas con 2 incógnitas por Métodos de Sustitución, Reducción, Determinantes y Gráfico.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
+                        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Sistema de Ecuaciones</h3>
+                        
+                        <div class="space-y-3">
+                            <div class="text-xs font-semibold text-blue-600 dark:text-blue-400">Ecuación 1: $a_1 x + b_1 y = c_1$</div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <input type="number" id="u3-a1" value="2" oninput="solveSystem2x2()" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-1.5 text-xs text-slate-900 dark:text-white text-center" placeholder="a1">
+                                <input type="number" id="u3-b1" value="1" oninput="solveSystem2x2()" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-1.5 text-xs text-slate-900 dark:text-white text-center" placeholder="b1">
+                                <input type="number" id="u3-c1" value="7" oninput="solveSystem2x2()" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-1.5 text-xs text-slate-900 dark:text-white text-center" placeholder="c1">
+                            </div>
+
+                            <div class="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Ecuación 2: $a_2 x + b_2 y = c_2$</div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <input type="number" id="u3-a2" value="1" oninput="solveSystem2x2()" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-1.5 text-xs text-slate-900 dark:text-white text-center" placeholder="a2">
+                                <input type="number" id="u3-b2" value="-1" oninput="solveSystem2x2()" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-1.5 text-xs text-slate-900 dark:text-white text-center" placeholder="b2">
+                                <input type="number" id="u3-c2" value="2" oninput="solveSystem2x2()" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-1.5 text-xs text-slate-900 dark:text-white text-center" placeholder="c2">
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-xs text-slate-500 dark:text-slate-400">Método de Explicación:</label>
+                            <select id="u3-method" onchange="solveSystem2x2()" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 rounded-lg p-2">
+                                <option value="determinants">Método por Determinantes (Cramer)</option>
+                                <option value="elimination">Método de Reducción (Suma y Resta)</option>
+                                <option value="substitution">Método de Sustitución</option>
+                                <option value="equalization">Método de Igualación</option>
+                            </select>
+                        </div>
+
+                        <div id="u3-solution-box" class="p-3 bg-amber-100 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-500/30 rounded-lg text-center">
+                            <span class="text-xs text-amber-800 dark:text-amber-300 block font-semibold">Punto de Intersección Solución</span>
+                            <span id="u3-solution-coords" class="text-sm font-bold text-amber-600 dark:text-amber-400">(x = 3, y = 1)</span>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4 flex flex-col">
+                        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Desglose del Método y Graficación</h3>
+                        <div id="u3-method-explanation" class="p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300 font-mono leading-relaxed space-y-1"></div>
+                        <div class="flex-1 flex justify-center items-center">
+                            <canvas id="canvas-u3" width="450" height="280" class="w-full max-w-[450px] h-[250px] bg-white dark:bg-slate-950 rounded-lg border border-slate-300 dark:border-slate-800 transition-colors duration-300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UNIT 4 QUADRATIC EQUATIONS -->
+            <div id="unit-lab-4" class="unit-lab-view hidden bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl space-y-6 transition-colors duration-300">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-bezier-curve text-purple-600 dark:text-purple-400"></i> Ecuaciones Cuadráticas ($ax^2 + bx + c = 0$)
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Aplica la fórmula general (Bhaskara), método de completar cuadrados y visualiza la parábola.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
+                        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Coeficientes Forma General</h3>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-[10px] text-slate-500 dark:text-slate-400">a ($x^2$):</label>
+                                <input type="number" id="u4-a" value="1" oninput="solveQuadratic()" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-xs text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-slate-500 dark:text-slate-400">b ($x$):</label>
+                                <input type="number" id="u4-b" value="-5" oninput="solveQuadratic()" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-xs text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-slate-500 dark:text-slate-400">c (cte):</label>
+                                <input type="number" id="u4-c" value="6" oninput="solveQuadratic()" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-xs text-slate-900 dark:text-white">
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-slate-800 p-4 rounded-lg space-y-2 text-xs border border-slate-200 dark:border-slate-700">
+                            <div class="text-slate-500 dark:text-slate-400">Discriminante ($\Delta = b^2 - 4ac$):</div>
+                            <div id="u4-discriminant" class="text-sm font-bold text-purple-600 dark:text-purple-400">Δ = 1 (Dos soluciones reales)</div>
+                            <hr class="border-slate-200 dark:border-slate-700">
+                            <div><strong>Raíz $x_1$:</strong> <span id="u4-x1" class="text-purple-700 dark:text-purple-300 font-bold">3</span></div>
+                            <div><strong>Raíz $x_2$:</strong> <span id="u4-x2" class="text-purple-700 dark:text-purple-300 font-bold">2</span></div>
+                            <div><strong>Vértice $(h, k)$:</strong> <span id="u4-vertex">(2.5, -0.25)</span></div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
+                        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Resolución con Fórmula General y Parábola</h3>
+                        <div id="u4-steps" class="p-3 bg-white dark:bg-slate-800 rounded-lg text-xs space-y-2 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700"></div>
+                        <div class="flex justify-center">
+                            <canvas id="canvas-u4" width="450" height="250" class="w-full max-w-[450px] h-[220px] bg-white dark:bg-slate-950 rounded-lg border border-slate-300 dark:border-slate-800 transition-colors duration-300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UNIT 5 REAL WORLD APPLICATIONS -->
+            <div id="unit-lab-5" class="unit-lab-view hidden bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl space-y-6 transition-colors duration-300">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-pink-600 dark:text-pink-400"></i> Aplicaciones Reales de las Ecuaciones
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Simuladores de interés financiero, crecimiento poblacional y proyección de materiales.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
+                        <h3 class="text-sm font-bold text-pink-600 dark:text-pink-400 flex items-center gap-2">
+                            <i class="fa-solid fa-piggy-bank"></i> Finanzas: Interés Simple vs Compuesto
+                        </h3>
+                        <div class="space-y-3 text-xs">
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400">Monto Inicial ($P$):</label>
+                                <input type="number" id="u5-principal" value="10000" oninput="simFinances()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400">Tasa de Interés Anual (% $r$):</label>
+                                <input type="number" id="u5-rate" value="8" oninput="simFinances()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400">Tiempo (Años $t$):</label>
+                                <input type="number" id="u5-years" value="5" oninput="simFinances()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-white dark:bg-slate-800 rounded-lg space-y-2 text-xs border border-slate-200 dark:border-slate-700">
+                            <div class="flex justify-between">
+                                <span>Interés Simple ($A = P(1 + rt)$):</span>
+                                <strong id="u5-simple-res" class="text-emerald-600 dark:text-emerald-400">$14,000.00</strong>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Interés Compuesto ($A = P(1 + r)^t$):</span>
+                                <strong id="u5-compound-res" class="text-pink-600 dark:text-pink-400">$14,693.28</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
+                        <h3 class="text-sm font-bold text-cyan-600 dark:text-cyan-400 flex items-center gap-2">
+                            <i class="fa-solid fa-users"></i> Biología: Crecimiento Poblacional / Epidemia
+                        </h3>
+                        <div class="space-y-3 text-xs">
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400">Población Inicial ($N_0$):</label>
+                                <input type="number" id="u5-n0" value="500" oninput="simPopulation()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400">Tasa de Crecimiento Anual (%):</label>
+                                <input type="number" id="u5-pop-rate" value="5" oninput="simPopulation()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400">Años de Crecimiento:</label>
+                                <input type="number" id="u5-pop-years" value="10" oninput="simPopulation()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-white dark:bg-slate-800 rounded-lg space-y-1 text-xs border border-slate-200 dark:border-slate-700">
+                            <div class="text-slate-500 dark:text-slate-400">Modelo Exponencial $N(t) = N_0(1 + r)^t$:</div>
+                            <div class="text-base font-bold text-cyan-600 dark:text-cyan-400 mt-1" id="u5-pop-res">Población estimada: 814 individuos</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UNIT 6 GEOMETRY & NAPOLEON THEOREM -->
+            <div id="unit-lab-6" class="unit-lab-view hidden bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl space-y-6 transition-colors duration-300">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-shapes text-teal-600 dark:text-teal-400"></i> Geometría Plana y Teorema del Triángulo de Napoleón
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Explora los fundamentos de ángulos, Pitágoras y el célebre Teorema de Napoleón (Problema-meta).</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
+                        <h3 class="text-sm font-bold text-teal-700 dark:text-teal-300">Teorema de Pitágoras ($a^2 + b^2 = c^2$)</h3>
+                        <div class="grid grid-cols-2 gap-3 text-xs">
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400">Cateto $a$:</label>
+                                <input type="number" id="u6-a" value="3" min="1" oninput="drawPythagoras()" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400">Cateto $b$:</label>
+                                <input type="number" id="u6-b" value="4" min="1" oninput="drawPythagoras()" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-white dark:bg-slate-800 rounded-lg text-xs space-y-1 border border-slate-200 dark:border-slate-700">
+                            <div>Hipotenusa $c = \sqrt{a^2 + b^2}$: <strong id="u6-c-val" class="text-teal-600 dark:text-teal-400 font-bold">5.00</strong></div>
+                            <div>Área: <span id="u6-area">6.00</span> u² | Perímetro: <span id="u6-perim">12.00</span> u</div>
+                        </div>
+                        <div class="flex justify-center">
+                            <canvas id="canvas-u6-pyth" width="300" height="200" class="bg-white dark:bg-slate-950 rounded-lg border border-slate-300 dark:border-slate-800 transition-colors duration-300"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
+                        <h3 class="text-sm font-bold text-amber-700 dark:text-amber-300">Problema-Meta: Teorema de Napoleón</h3>
+                        <p class="text-[11px] text-slate-600 dark:text-slate-400 leading-normal">
+                            "Si sobre los lados de cualquier triángulo se construyen externamente triángulos equiláteros, los baricentros (centros) de dichos triángulos forman siempre un <strong>triángulo equilátero</strong>."
+                        </p>
+                        <div class="flex justify-center">
+                            <canvas id="canvas-u6-napoleon" width="350" height="230" class="bg-white dark:bg-slate-950 rounded-lg border border-slate-300 dark:border-slate-800 cursor-pointer transition-colors duration-300" title="Haz clic para regenerar forma de triángulo"></canvas>
+                        </div>
+                        <div class="text-center">
+                            <button onclick="drawNapoleonTheorem()" class="px-3 py-1.5 bg-amber-100 hover:bg-amber-200 dark:bg-amber-500/20 dark:hover:bg-amber-500/30 border border-amber-300 dark:border-amber-500/40 text-amber-800 dark:text-amber-300 text-xs rounded-lg transition font-medium">
+                                <i class="fa-solid fa-rotate"></i> Deformar Triángulo Base
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: QUIZ / AUTOEVALUACIÓN -->
+        <section id="tab-quiz" class="tab-content hidden space-y-6">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl space-y-6 max-w-3xl mx-auto transition-colors duration-300">
+                <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Autoevaluación de Diagnóstico y Formativa</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Pone a prueba tus aprendizajes en los 6 propósitos formativos del programa.</p>
+                    </div>
+                    <div class="bg-slate-100 dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-center">
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400 block uppercase font-bold">Puntaje</span>
+                        <span id="quiz-score" class="text-lg font-bold text-blue-600 dark:text-blue-400">0 / 6</span>
+                    </div>
+                </div>
+
+                <div id="quiz-container" class="space-y-6">
+                </div>
+
+                <div class="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                    <button onclick="resetQuiz()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-xs font-semibold rounded-lg text-slate-800 dark:text-slate-200 transition">
+                        <i class="fa-solid fa-arrow-rotate-left"></i> Reiniciar Autoevaluación
+                    </button>
+                    <span id="quiz-feedback-banner" class="text-xs font-semibold text-slate-500 dark:text-slate-400"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: AI TUTOR -->
+        <section id="tab-ai" class="tab-content hidden space-y-6">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl overflow-hidden flex flex-col h-[600px] max-w-4xl mx-auto transition-colors duration-300">
+                <div class="bg-slate-100/90 dark:bg-slate-900/90 p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-600/30 border border-indigo-300 dark:border-indigo-500/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-lg">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-900 dark:text-white">Tutor IA - Pensamiento Matemático III</h2>
+                            <p class="text-[10px] text-indigo-600 dark:text-indigo-300">Asistente Inteligente de Aprendizaje</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30 px-2.5 py-1 rounded-full flex items-center gap-1.5 font-medium">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span> En línea
+                        </span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 dark:bg-slate-850 p-3 border-b border-slate-200 dark:border-slate-700/60 flex gap-2 overflow-x-auto text-xs custom-scrollbar">
+                    <span class="text-slate-500 dark:text-slate-400 whitespace-nowrap self-center font-medium">Sugerencias:</span>
+                    <button onclick="sendSuggestedPrompt('Explicame el método de Cramer por determinantes con un ejemplo sencillo.')" class="bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-full whitespace-nowrap transition shadow-sm">
+                        📌 Método Cramer
+                    </button>
+                    <button onclick="sendSuggestedPrompt('¿Cómo se relaciona la fórmula general de la ecuación cuadrática con el vértice de la parábola?')" class="bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-full whitespace-nowrap transition shadow-sm">
+                        📌 Vértice y Fórmula General
+                    </button>
+                    <button onclick="sendSuggestedPrompt('Dame un problema aplicado de cálculo de interés compuesto en finanzas personales.')" class="bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-full whitespace-nowrap transition shadow-sm">
+                        📌 Problema de Interés Compuesto
+                    </button>
+                    <button onclick="sendSuggestedPrompt('¿Qué dice exactamente el Teorema del Triángulo de Napoleón en geometría euclidiana?')" class="bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-full whitespace-nowrap transition shadow-sm">
+                        📌 Teorema de Napoleón
+                    </button>
+                </div>
+
+                <div id="ai-chat-history" class="flex-1 p-4 overflow-y-auto space-y-4 custom-scrollbar bg-slate-50/50 dark:bg-slate-900/40">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-600/30 border border-indigo-200 dark:border-indigo-500/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-sm">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl rounded-tl-none border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-slate-200 max-w-[85%] leading-relaxed shadow-sm">
+                            ¡Hola! Soy tu tutor interactivo de <strong>Pensamiento Matemático III</strong>. Puedo explicarte procedimientos algebraicos (ecuaciones lineales, sistemas 2x2, cuadráticas), problemas aplicados de finanzas o geometría plana como el Teorema de Napoleón. ¿En qué tema quieres profundizar hoy?
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 flex gap-2">
+                    <input type="text" id="ai-user-input" onkeypress="handleAiKeyPress(event)" placeholder="Haz una pregunta matemática a la IA..." class="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+                    <button onclick="sendAiMessage()" id="ai-send-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition flex items-center gap-2 shadow-md">
+                        <span>Enviar</span> <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors duration-300 space-y-2">
+        <div class="flex items-center justify-center gap-2 font-medium text-slate-700 dark:text-slate-300">
+            <i class="fa-solid fa-graduation-cap text-blue-600 dark:text-blue-400"></i>
+            <span>Titular de la Asignatura:</span>
+            <span class="font-bold text-slate-900 dark:text-white tracking-wide">Dr. Adrian Cipriano Lara</span>
+        </div>
+        <div>Pensamiento Matemático III • Plataforma Institucional de Apoyo Curricular e Interactiva</div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // State
+        let isDarkMode = false; // Default: Light mode
+
+        const curriculumData = [
+            {
+                id: 1,
+                proposito: "Aplica la aritmética y el manejo del álgebra para encontrar el valor de una incógnita en ecuaciones lineales que refieran a situaciones de interés.",
+                contenidos: [
+                    "Concepto de ecuación y sus partes",
+                    "Ecuaciones lineales de primer grado",
+                    "Procedimiento para encontrar el valor de una incógnita",
+                    "Forma estándar de las ecuaciones lineales"
+                ],
+                completed: false
+            },
+            {
+                id: 2,
+                proposito: "Aplica la aritmética y el manejo del álgebra para resolver ecuaciones lineales con dos incógnitas que refieran a situaciones de interés.",
+                contenidos: [
+                    "Ecuaciones lineales con dos incógnitas",
+                    "Procedimiento para solucionar ecuaciones lineales con dos incógnitas",
+                    "Ecuación de la recta",
+                    "Concepto de plano cartesiano: ejes perpendiculares: horizontal (X) y vertical (Y)",
+                    "Representación gráfica de la ecuación de la recta"
+                ],
+                completed: false
+            },
+            {
+                id: 3,
+                proposito: "Aplica la aritmética, el manejo del álgebra y el método gráfico para resolver sistemas de ecuaciones lineales que refieran a situaciones de interés.",
+                contenidos: [
+                    "Método de igualación",
+                    "Método de sustitución",
+                    "Método de reducción",
+                    "Método gráfico",
+                    "Método por determinantes"
+                ],
+                completed: false
+            },
+            {
+                id: 4,
+                proposito: "Aplica la aritmética y el manejo del álgebra para resolver ecuaciones cuadráticas que refieran a situaciones de interés.",
+                contenidos: [
+                    "Ecuaciones cuadráticas",
+                    "Forma general de la ecuación cuadrática",
+                    "Resolución por método de completar cuadrados",
+                    "Aplicación de fórmula general para ecuaciones cuadráticas (Bhaskara)",
+                    "Representación gráfica"
+                ],
+                completed: false
+            },
+            {
+                id: 5,
+                proposito: "Expresa y resuelve diversas situaciones de interés a través de distintos tipos de ecuaciones para comprender su relevancia en otras áreas del conocimiento, fenómenos naturales o en distintas esferas de la vida humana.",
+                contenidos: [
+                    "Cálculo de intereses simples y compuestos en finanzas personales",
+                    "Descripción del crecimiento poblacional o propagación de fenómenos (ej. epidemia)",
+                    "Determinar medidas o cantidades de material en proyectos de arquitectura"
+                ],
+                completed: false
+            },
+            {
+                id: 6,
+                proposito: "Revisa el teorema del triángulo de Napoleón, considerándolo como un problema-meta para aplicar resultados de la geometría euclidiana.",
+                contenidos: [
+                    "Introducción a la geometría plana",
+                    "Ángulos, definición, tipos y componentes",
+                    "Teorema de Pitágoras",
+                    "Construcción de triángulos rectángulos",
+                    "Criterios de congruencia y semejanza de triángulos"
+                ],
+                completed: false
+            }
+        ];
+
+        const presentationsData = [
+            {
+                unitId: 1,
+                badge: "Clase 01",
+                title: "Ecuaciones Lineales de Primer Grado",
+                subtitle: "Concepto de equilibrio, partes de la ecuación y despeje de una incógnita",
+                speakerNote: "Usa la analogía de una balanza en equilibrio: lo que haces de un lado, debes hacerlo exactamente del otro.",
+                slides: [
+                    {
+                        tag: "1. Concepto Fundamental",
+                        heading: "¿Qué es una Ecuación Lineal y la Balanza de Igualdad?",
+                        htmlVisual: `
+                            <div class="bg-blue-50/80 dark:bg-slate-900/80 border border-blue-200 dark:border-blue-800 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-around gap-4 my-2">
+                                <div class="text-center sm:text-left">
+                                    <span class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider block">Balanza Algebraica</span>
+                                    <div class="text-lg font-bold text-slate-800 dark:text-slate-100 mt-1">
+                                        <span class="px-3 py-1 bg-blue-100 dark:bg-blue-900/60 rounded-lg text-blue-800 dark:text-blue-300">4x - 12</span>
+                                        <span class="mx-2 text-blue-600 dark:text-blue-400 font-extrabold text-2xl">=</span>
+                                        <span class="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/60 rounded-lg text-indigo-800 dark:text-indigo-300">20</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">El signo igual ($=$) es el punto de apoyo. Mantiene ambos lados equilibrados.</p>
+                                </div>
+                                <svg class="w-32 h-20 text-blue-500" viewBox="0 0 100 60" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M50 45 L50 25 M30 50 L70 50 M20 25 L80 25 M20 25 L10 38 L30 38 Z M80 25 L70 38 L90 38 Z" />
+                                    <circle cx="50" cy="20" r="3" fill="currentColor" />
+                                </svg>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Definición Simple:</strong> Una ecuación es una igualdad matemática entre dos expresiones donde hay un valor desconocido llamado <em>incógnita</em> ($x$).",
+                            "<strong>Partes de la Ecuación:</strong> El lado izquierdo se llama <em>primer miembro</em> y el derecho <em>segundo miembro</em>.",
+                            "<strong>Grado 1 (Lineal):</strong> La incógnita $x$ tiene exponente 1 ($x^1$). Gráficamente representa una línea recta continua."
+                        ],
+                        boxTitle: "Forma Canónica Estándar",
+                        boxContent: "$$ax + b = c \\quad \\text{donde } a, b, c \\text{ son números reales y } a \\neq 0$$"
+                    },
+                    {
+                        tag: "2. Reglas del Despeje",
+                        heading: "Las 4 Reglas de Oro para Aislar la Incógnita",
+                        htmlVisual: `
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs my-2">
+                                <div class="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 p-2.5 rounded-xl">
+                                    <i class="fa-solid fa-plus text-emerald-600 dark:text-emerald-400 text-lg mb-1 block"></i>
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">Si está sumando</span>
+                                    <span class="block text-[10px] text-emerald-700 dark:text-emerald-400 mt-0.5">Pasa restando $(-)$</span>
+                                </div>
+                                <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 p-2.5 rounded-xl">
+                                    <i class="fa-solid fa-minus text-amber-600 dark:text-amber-400 text-lg mb-1 block"></i>
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">Si está restando</span>
+                                    <span class="block text-[10px] text-amber-700 dark:text-amber-400 mt-0.5">Pasa sumando $(+)$</span>
+                                </div>
+                                <div class="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 p-2.5 rounded-xl">
+                                    <i class="fa-solid fa-xmark text-blue-600 dark:text-blue-400 text-lg mb-1 block"></i>
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">Si multiplica</span>
+                                    <span class="block text-[10px] text-blue-700 dark:text-blue-400 mt-0.5">Pasa dividiendo $(\\div)$</span>
+                                </div>
+                                <div class="bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 p-2.5 rounded-xl">
+                                    <i class="fa-solid fa-divide text-purple-600 dark:text-purple-400 text-lg mb-1 block"></i>
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">Si divide</span>
+                                    <span class="block text-[10px] text-purple-700 dark:text-purple-400 mt-0.5">Pasa multiplicando $(\\times)$</span>
+                                </div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Principio de Uniformidad:</strong> 'Lo que le haces al lado izquierdo, debes hacérselo al lado derecho' para no romper la igualdad.",
+                            "<strong>Orden Recomendado:</strong> Primero elimina términos que suman o restan; al final, el coeficiente que multiplica a la $x$.",
+                            "<strong>Conservación del Signo:</strong> Al pasar multiplicando o dividiendo, el número conserva su signo original."
+                        ],
+                        boxTitle: "Fórmula General del Despeje",
+                        boxContent: "$$ax + b = c \\implies ax = c - b \\implies x = \\frac{c - b}{a}$$"
+                    },
+                    {
+                        tag: "3. Ejemplo Ilustrado",
+                        heading: "Paso a Paso: Resolviendo $4x - 12 = 20$",
+                        htmlVisual: `
+                            <div class="space-y-2 text-xs my-2">
+                                <div class="flex items-center gap-3 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                                    <span class="w-6 h-6 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[10px]">1</span>
+                                    <div><strong>Ecuación Inicial:</strong> $4x - 12 = 20$</div>
+                                </div>
+                                <div class="flex items-center gap-3 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                                    <span class="w-6 h-6 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[10px]">2</span>
+                                    <div><strong>Trasponer el $-12$:</strong> Se pasa sumando $+12 \\implies 4x = 20 + 12 = 32$</div>
+                                </div>
+                                <div class="flex items-center gap-3 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                                    <span class="w-6 h-6 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[10px]">3</span>
+                                    <div><strong>Despejar $x$:</strong> El $4$ multiplica a $x$, pasa dividiendo $\\implies x = \\frac{32}{4} = 8$</div>
+                                </div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Verificación Obligatoria:</strong> Sustituye $x = 8$ en la ecuación original para comprobar.",
+                            "<strong>Comprobación:</strong> $4(8) - 12 = 32 - 12 = 20 \\quad \\checkmark$. ¡La igualdad se cumple perfectamente!",
+                            "<strong>Significado Práctico:</strong> El número 8 es la única raíz o solución real que equilibra la balanza."
+                        ],
+                        boxTitle: "Resultado Comprobado",
+                        boxContent: "$$x = 8 \\quad (\\text{Solución Única})$$"
+                    },
+                    {
+                        tag: "4. Aplicación Reales",
+                        heading: "Del Lenguaje Cotidiano al Lenguaje Algebraico",
+                        htmlVisual: `
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl text-xs space-y-1">
+                                <span class="font-bold text-amber-800 dark:text-amber-300 block"><i class="fa-solid fa-cart-shopping"></i> Problema del Negocio:</span>
+                                <p class="text-slate-700 dark:text-slate-300">"Compraste 4 libretas iguales y pagaste con un billete de $50. Te regresaron $18 de cambio. ¿Cuánto costó cada libreta?"</p>
+                                <div class="mt-2 font-bold text-amber-700 dark:text-amber-400">Modelo: $4x + 18 = 50 \\implies 4x = 32 \\implies x = 8 \\text{ pesos}$</div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Modelación:</strong> Traducir palabras en símbolos algebraicos nos permite calcular incógnitas financieras.",
+                            "<strong>Utilidad:</strong> Se aplica para calcular presupuestos, salarios con comisiones y tiempos de viaje.",
+                            "<strong>Conclusión:</strong> El álgebra no es solo números; es la herramienta para tomar decisiones informadas."
+                        ],
+                        boxTitle: "Resumen Formativo",
+                        boxContent: "Aprender a despejar una incógnita es la habilidad básica de todo pensamiento científico."
+                    }
+                ]
+            },
+            {
+                unitId: 2,
+                badge: "Clase 02",
+                title: "Ecuación de la Recta y Plano Cartesiano",
+                subtitle: "Interpretación de la pendiente ($m$), ordenada al origen ($b$) y gráficas",
+                speakerNote: "Enfatiza que la pendiente 'm' representa el ritmo de cambio: cuánto sube Y por cada unidad que avanza X.",
+                slides: [
+                    {
+                        tag: "1. El Plano Cartesiano",
+                        heading: "Ubicación Geográfica en Dos Dimensiones",
+                        htmlVisual: `
+                            <div class="flex justify-center my-2">
+                                <svg class="w-48 h-32 bg-slate-900 rounded-lg p-2 text-slate-300" viewBox="-50 -30 100 60">
+                                    <line x1="-45" y1="0" x2="45" y2="0" stroke="#64748b" stroke-width="1.5" />
+                                    <line x1="0" y1="-25" x2="0" y2="25" stroke="#64748b" stroke-width="1.5" />
+                                    <text x="38" y="-4" fill="#38bdf8" font-size="8" font-weight="bold">Eje X</text>
+                                    <text x="4" y="-18" fill="#34d399" font-size="8" font-weight="bold">Eje Y</text>
+                                    <circle cx="20" cy="-15" r="3" fill="#f59e0b" />
+                                    <text x="24" y="-13" fill="#f59e0b" font-size="7">Punto (x, y)</text>
+                                </svg>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Plano Cartesiano:</strong> Formado por dos rectas numéricas perpendiculares que se cruzan en el <em>Origen</em> $(0,0)$.",
+                            "<strong>Eje X (Abscisas):</strong> Recta horizontal. Valores a la derecha positivos, a la izquierda negativos.",
+                            "<strong>Eje Y (Ordenadas):</strong> Recta vertical. Valores hacia arriba positivos, hacia abajo negativos.",
+                            "<strong>Par Ordenado $(x, y)$:</strong> Dirección única e irrepetible para ubicar cualquier punto en el plano."
+                        ],
+                        boxTitle: "Coordenadas del Origen",
+                        boxContent: "$$\\text{Origen } O = (0, 0)$$"
+                    },
+                    {
+                        tag: "2. Pendiente e Inclinación",
+                        heading: "¿Qué es la Pendiente ($m$) de una Recta?",
+                        htmlVisual: `
+                            <div class="grid grid-cols-2 gap-2 text-center text-xs my-2">
+                                <div class="p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+                                    <span class="font-bold text-emerald-600 dark:text-emerald-400 block">$m > 0$ (Creciente)</span>
+                                    <span class="text-[10px] text-slate-600 dark:text-slate-400">Sube de izquierda a derecha ↗</span>
+                                </div>
+                                <div class="p-2 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 rounded-lg">
+                                    <span class="font-bold text-rose-600 dark:text-rose-400 block">$m < 0$ (Decreciente)</span>
+                                    <span class="text-[10px] text-slate-600 dark:text-slate-400">Baja de izquierda a derecha ↘</span>
+                                </div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Razón de Cambio:</strong> Mide la inclinación de la recta. Indica cuánto cambia $y$ por cada unidad que aumenta $x$.",
+                            "<strong>Fórmula Numérica:</strong> $m = \\frac{\\Delta y}{\\Delta x} = \\frac{y_2 - y_1}{x_2 - x_1}$ dados dos puntos distintos $(x_1, y_1)$ y $(x_2, y_2)$.",
+                            "<strong>Pendiente Nula ($m=0$):</strong> La recta es completamente horizontal.",
+                            "<strong>Pendiente Indefinida:</strong> La recta es totalmente vertical."
+                        ],
+                        boxTitle: "Cálculo de Pendiente",
+                        boxContent: "$$m = \\frac{y_2 - y_1}{x_2 - x_1}$$"
+                    },
+                    {
+                        tag: "3. Forma Pendiente-Ordenada",
+                        heading: "La Ecuación Explícita: $y = mx + b$",
+                        htmlVisual: `
+                            <div class="p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-xl text-center my-2">
+                                <span class="text-xl font-extrabold text-blue-600 dark:text-blue-400">y = <span class="text-emerald-500">2</span>x <span class="text-amber-500">- 1</span></span>
+                                <div class="grid grid-cols-2 gap-2 text-xs mt-2 text-slate-700 dark:text-slate-300">
+                                    <div>Pendiente $m = 2$ (Avanza 1, sube 2)</div>
+                                    <div>Corte Eje Y $b = -1 \\implies (0, -1)$</div>
+                                </div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>$m$ (Pendiente):</strong> Controla la inclinación o dirección de la recta.",
+                            "<strong>$b$ (Ordenada al Origen):</strong> Es el punto exacto $(0, b)$ donde la recta corta verticalmente al eje Y.",
+                            "<strong>Facilidad de Graficación:</strong> Conociendo $b$ y la pendiente $m$, se traza la recta de inmediato."
+                        ],
+                        boxTitle: "Ecuación Explícita",
+                        boxContent: "$$y = mx + b$$"
+                    },
+                    {
+                        tag: "4. Aplicación Real",
+                        heading: "Modelado de Tarifas y Costos Variables",
+                        htmlVisual: `
+                            <div class="p-3 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs space-y-1">
+                                <span class="font-bold text-emerald-800 dark:text-emerald-300 block"><i class="fa-solid fa-taxi"></i> Ejemplo de Servicio de Taxi:</span>
+                                <p class="text-slate-700 dark:text-slate-300">"El banderazo base cuesta $15 (ordenada $b$) y cada kilómetro recorrido cuesta $8 (pendiente $m$)."</p>
+                                <div class="mt-1 font-bold text-emerald-700 dark:text-emerald-400">Ecuación: $\\text{Costo} = 8x + 15$</div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Visualización Inmediata:</strong> Permite calcular el cobro exacto para cualquier distancia $x$ recorrida.",
+                            "<strong>Depreciación y Rendimiento:</strong> Mide el desgaste constante de maquinaria o consumos en tiempo real.",
+                            "<strong>Conclusión:</strong> Toda variación que ocurre a ritmo constante se grafica como una recta."
+                        ],
+                        boxTitle: "Idea Principal",
+                        boxContent: "Una línea recta es la representación gráfica de una velocidad o tasa de cambio constante."
+                    }
+                ]
+            },
+            {
+                unitId: 3,
+                badge: "Clase 03",
+                title: "Sistemas de Ecuaciones Lineales 2x2",
+                subtitle: "Intersección de rectas, métodos de solución y Regla de Cramer",
+                speakerNote: "Recordar que resolver un sistema 2x2 significa encontrar las coordenadas (x,y) donde dos rectas se cruzan.",
+                slides: [
+                    {
+                        tag: "1. Concepto e Intersección",
+                        heading: "¿Qué es un Sistema 2x2 y qué Significa Solucionarlo?",
+                        htmlVisual: `
+                            <div class="bg-slate-900 p-3 rounded-xl flex items-center justify-around my-2 text-white text-xs">
+                                <div>
+                                    <div class="font-mono text-amber-400">2x + 1y = 7</div>
+                                    <div class="font-mono text-emerald-400">1x - 1y = 2</div>
+                                </div>
+                                <i class="fa-solid fa-arrow-right text-slate-500"></i>
+                                <div class="text-center bg-slate-800 p-2 rounded-lg border border-slate-700">
+                                    <span class="text-blue-400 font-bold block">Punto de Cruce</span>
+                                    <span class="text-sm font-bold text-white">(x = 3, y = 1)</span>
+                                </div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Sistema 2x2:</strong> Conjunto de dos ecuaciones de primer grado con dos incógnitas comunes ($x$ e $y$).",
+                            "<strong>Interpretación Geométrica:</strong> Cada ecuación representa una recta. La solución es el punto exacto $(x, y)$ donde ambas se cruzan.",
+                            "<strong>Tipos de Sistemas:</strong> Compatible Determinado (1 solución), Incompatible (rectas paralelas nunca se cruzan), Indeterminado (misma recta, infinitas soluciones)."
+                        ],
+                        boxTitle: "Forma Canónica del Sistema",
+                        boxContent: "$$\\begin{cases} a_1 x + b_1 y = c_1 \\\\ a_2 x + b_2 y = c_2 \\end{cases}$$"
+                    },
+                    {
+                        tag: "2. Métodos Algebraicos",
+                        heading: "Tres Caminos Tradicionales de Resolución",
+                        htmlVisual: `
+                            <div class="grid grid-cols-3 gap-2 text-center text-xs my-2">
+                                <div class="p-2 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-lg">
+                                    <strong class="text-blue-700 dark:text-blue-300 block mb-1">Sustitución</strong>
+                                    <span class="text-[10px] text-slate-600 dark:text-slate-400">Despejar una incógnita en una ecuación y reemplazarla en la otra.</span>
+                                </div>
+                                <div class="p-2 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 rounded-lg">
+                                    <strong class="text-purple-700 dark:text-purple-300 block mb-1">Igualación</strong>
+                                    <span class="text-[10px] text-slate-600 dark:text-slate-400">Despejar la misma variable en ambas e igualar expresiones.</span>
+                                </div>
+                                <div class="p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+                                    <strong class="text-emerald-700 dark:text-emerald-300 block mb-1">Reducción</strong>
+                                    <span class="text-[10px] text-slate-600 dark:text-slate-400">Sumar o restar ecuaciones para eliminar una variable.</span>
+                                </div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Sustitución:</strong> Ideal cuando una variable ya tiene coeficiente 1 o -1.",
+                            "<strong>Reducción (Suma y Resta):</strong> El método más rápido cuando los coeficientes se pueden cancelar fácilmente.",
+                            "<strong>Criterio:</strong> Todos los métodos conducen exactamente a la misma respuesta numéricamente."
+                        ],
+                        boxTitle: "Garantía Matemática",
+                        boxContent: "Independientemente del método elegido, las coordenadas $(x, y)$ calculadas son idénticas."
+                    },
+                    {
+                        tag: "3. Método por Determinantes",
+                        heading: "La Regla de Cramer (Matricial Directo)",
+                        htmlVisual: `
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-center my-2 text-xs">
+                                <span class="font-bold text-amber-800 dark:text-amber-300 block">Determinante del Sistema ($\\Delta$)</span>
+                                <div class="font-mono text-sm my-1">
+                                    $$\\Delta = \\begin{vmatrix} a_1 & b_1 \\\\ a_2 & b_2 \\end{vmatrix} = a_1 b_2 - a_2 b_1$$
+                                </div>
+                                <p class="text-slate-600 dark:text-slate-400 text-[10px]">Multiplicación en diagonal principal menos diagonal secundaria.</p>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Elegancia Sistemática:</strong> Resuelve el sistema mediante operaciones aritméticas directas sin despejar variables.",
+                            "<strong>Cálculo de Variables:</strong> $x = \\frac{\\Delta_x}{\\Delta}$ e $y = \\frac{\\Delta_y}{\\Delta}$.",
+                            "<strong>Condición de Solución Única:</strong> El determinante principal no debe ser cero ($\\Delta \\neq 0$)."
+                        ],
+                        boxTitle: "Regla de Cramer",
+                        boxContent: "$$x = \\frac{\\Delta_x}{\\Delta}, \\quad y = \\frac{\\Delta_y}{\\Delta} \\quad (\\Delta \\neq 0)$$"
+                    },
+                    {
+                        tag: "4. Aplicación Práctica",
+                        heading: "Punto de Equilibrio en Economía",
+                        htmlVisual: `
+                            <div class="p-3 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800 rounded-xl text-xs space-y-1">
+                                <span class="font-bold text-indigo-800 dark:text-indigo-300 block"><i class="fa-solid fa-scale-balanced"></i> Oferta y Demanda:</span>
+                                <p class="text-slate-700 dark:text-slate-300">"El precio y la cantidad donde la curva de Oferta iguala exactamente a la curva de Demanda se calcula resolviendo un sistema 2x2."</p>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Intersección Real:</strong> Modela la mezcla de productos, rutas de transporte y distribución de recursos.",
+                            "<strong>Conclusión:</strong> Los sistemas 2x2 permiten balancear múltiples restricciones simultáneas."
+                        ],
+                        boxTitle: "Punto de Equilibrio",
+                        boxContent: "$$\\text{Oferta}(x) = \\text{Demanda}(x)$$"
+                    }
+                ]
+            },
+            {
+                unitId: 4,
+                badge: "Clase 04",
+                title: "Ecuaciones Cuadráticas de Segundo Grado",
+                subtitle: "Forma general, Fórmula de Bhaskara, completar cuadrados y parábolas",
+                speakerNote: "Enfatiza el papel del discriminante Delta = b^2 - 4ac para predecir si existen 2, 1 o 0 soluciones reales.",
+                slides: [
+                    {
+                        tag: "1. Estructura Cuadrática",
+                        heading: "La Forma General $ax^2 + bx + c = 0$",
+                        htmlVisual: `
+                            <div class="p-3 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 rounded-xl text-center my-2">
+                                <div class="text-lg font-extrabold text-purple-600 dark:text-purple-400">ax² + bx + c = 0</div>
+                                <div class="grid grid-cols-3 gap-2 text-[11px] mt-2 text-slate-700 dark:text-slate-300">
+                                    <div><strong>$a$:</strong> Término Cuadrático</div>
+                                    <div><strong>$b$:</strong> Término Lineal</div>
+                                    <div><strong>$c$:</strong> Término Independiente</div>
+                                </div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Definición:</strong> Ecuación de segundo grado donde el máximo exponente de la variable es 2 ($x^2$).",
+                            "<strong>Requisito Indispensable:</strong> El coeficiente cuadrático no puede ser cero ($a \\neq 0$).",
+                            "<strong>Gráfica característica:</strong> Su representación en el plano es una curva simétrica llamada <em>Parábola</em>."
+                        ],
+                        boxTitle: "Grado de la Ecuación",
+                        boxContent: "$$\\text{Grado } 2 \\implies \\text{Hasta 2 soluciones reales } (x_1, x_2)$$"
+                    },
+                    {
+                        tag: "2. Fórmula General",
+                        heading: "La Fórmula General de Bhaskara",
+                        htmlVisual: `
+                            <div class="p-3 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 rounded-xl text-center my-2">
+                                <div class="text-sm sm:text-base font-extrabold text-indigo-700 dark:text-indigo-300 font-mono">
+                                    $$x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$$
+                                </div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Universalidad:</strong> Resuelve absolutamente cualquier ecuación cuadrática existente.",
+                            "<strong>El Discriminante ($\\Delta = b^2 - 4ac$):</strong>",
+                            "• Si $\\Delta > 0$: Existen 2 soluciones reales y distintas.",
+                            "• Si $\\Delta = 0$: Existe 1 única solución real repetida.",
+                            "• Si $\\Delta < 0$: No hay solución en números reales (raíces complejas)."
+                        ],
+                        boxTitle: "El Discriminante",
+                        boxContent: "$$\\Delta = b^2 - 4ac$$"
+                    },
+                    {
+                        tag: "3. Completar Cuadrados",
+                        heading: "Método de Completar el Trinomio Cuadrado Perfecto",
+                        htmlVisual: `
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-xs space-y-1 my-2">
+                                <span class="font-bold text-amber-800 dark:text-amber-300 block">Paso Clave:</span>
+                                <div>Sumar y restar en ambos miembros la mitad del coeficiente lineal al cuadrado: $\\left(\\frac{b}{2}\\right)^2$.</div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Transformación Geométrica:</strong> Convierte una expresión $x^2 + bx$ en un trinomio perfecto $(x + k)^2$.",
+                            "<strong>Origen de la Fórmula:</strong> La fórmula general de Bhaskara proviene de aplicar este método a $ax^2 + bx + c = 0$.",
+                            "<strong>Utilidad en Geometría:</strong> Permite obtener la forma canónica del vértice $(h,k)$ de la parábola."
+                        ],
+                        boxTitle: "Forma del Vértice",
+                        boxContent: "$$y = a(x - h)^2 + k \\quad \\text{con } h = -\\frac{b}{2a}$$"
+                    },
+                    {
+                        tag: "4. Movimiento Parabólico",
+                        heading: "Física y Trayectoria de Proyectiles",
+                        htmlVisual: `
+                            <div class="p-3 bg-cyan-50 dark:bg-cyan-950/30 border border-cyan-200 dark:border-cyan-800 rounded-xl text-xs space-y-1">
+                                <span class="font-bold text-cyan-800 dark:text-cyan-300 block"><i class="fa-solid fa-futbol"></i> Lanzamiento de Pelota:</span>
+                                <p class="text-slate-700 dark:text-slate-300">La altura $h(t) = -4.9t^2 + v_0 t + h_0$ describe el tiro parabólico bajo gravedad.</p>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Punto Máximo:</strong> El vértice $(h,k)$ de la parábola representa la altura máxima alcanzada por el objeto.",
+                            "<strong>Tiempo de Impacto:</strong> Las raíces de la ecuación indican exactamente el momento en que toca el suelo.",
+                            "<strong>Conclusión:</strong> Las cuadráticas explican el movimiento natural de los cuerpos bajo la gravedad."
+                        ],
+                        boxTitle: "Vértice de Parábola",
+                        boxContent: "$$h = -\\frac{b}{2a}, \\quad k = c - \\frac{b^2}{4a}$$"
+                    }
+                ]
+            },
+            {
+                unitId: 5,
+                badge: "Clase 05",
+                title: "Aplicaciones Reales Interdisciplinarias",
+                subtitle: "Finanzas personales, crecimiento poblacional y optimización de materiales",
+                speakerNote: "Demuestra a los alumnos cómo el álgebra es la herramienta central en decisiones financieras y biológicas.",
+                slides: [
+                    {
+                        tag: "1. Finanzas Personales",
+                        heading: "Interés Simple vs. Interés Compuesto",
+                        htmlVisual: `
+                            <div class="grid grid-cols-2 gap-2 text-xs my-2">
+                                <div class="p-2.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl">
+                                    <strong class="text-emerald-700 dark:text-emerald-300 block">Interés Simple</strong>
+                                    <span>Crece de forma <strong>lineal</strong>: $A = P(1 + rt)$</span>
+                                </div>
+                                <div class="p-2.5 bg-pink-50 dark:bg-pink-950/40 border border-pink-200 dark:border-pink-800 rounded-xl">
+                                    <strong class="text-pink-700 dark:text-pink-300 block">Interés Compuesto</strong>
+                                    <span>Crece de forma <strong>exponencial</strong>: $A = P(1 + r)^t$</span>
+                                </div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Interés Simple:</strong> El rendimiento se calcula siempre sobre el capital inicial fijo sin acumular ganancias.",
+                            "<strong>Interés Compuesto:</strong> Los intereses ganados se reinvierten (se 'capitalizan'), produciendo un crecimiento acelerado.",
+                            "<strong>Poder del Tiempo:</strong> A mayor plazo $t$, el interés compuesto supera drásticamente al simple."
+                        ],
+                        boxTitle: "Modelo de Interés Compuesto",
+                        boxContent: "$$A = P(1 + r)^t$$"
+                    },
+                    {
+                        tag: "2. Dinámica de Poblaciones",
+                        heading: "Modelos Exponenciales y Epidemias",
+                        htmlVisual: `
+                            <div class="p-3 bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800 rounded-xl text-center my-2 text-xs">
+                                <span class="font-bold text-cyan-800 dark:text-cyan-300 block">Ecuación del Crecimiento $N(t)$</span>
+                                <div class="font-mono text-sm my-1 text-cyan-600 dark:text-cyan-400">$$N(t) = N_0 (1 + r)^t$$</div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Modelación Biológica:</strong> Describe la multiplicación de bacterias en cultivos o tasa de reproducción de virus.",
+                            "<strong>Parámetros:</strong> $N_0$ es la población inicial, $r$ la tasa de crecimiento anual y $t$ el tiempo en años.",
+                            "<strong>Toma de Decisiones:</strong> Permite proyectar necesidades de recursos hospitalarios y alimentos."
+                        ],
+                        boxTitle: "Crecimiento Exponencial",
+                        boxContent: "$$N(t) = N_0 (1 + r)^t$$"
+                    },
+                    {
+                        tag: "3. Diseño y Arquitectura",
+                        heading: "Cálculo de Materiales y Áreas Máximas",
+                        htmlVisual: `
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl text-xs space-y-1 my-2">
+                                <span class="font-bold text-amber-800 dark:text-amber-300 block"><i class="fa-solid fa-drafting-compass"></i> Maximización de Área:</span>
+                                <p class="text-slate-700 dark:text-slate-300">"Si dispones de 40 metros de malla, el área máxima de un terreno rectangular se alcanza cuando el terreno es un cuadrado perfecto ($10\\text{m} \\times 10\\text{m} = 100\\text{m}^2$)."</p>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Ahorro Energético y Costos:</strong> Maximizar área con perímetro fijo reduce el gasto de construcción.",
+                            "<strong>Análisis Funcional:</strong> $A(x) = x(20 - x) = -x^2 + 20x$. El máximo es el vértice de la parábola.",
+                            "<strong>Conclusión:</strong> Las herramientas algebraicas reducen costos en la industria moderna."
+                        ],
+                        boxTitle: "Optimización de Perímetro",
+                        boxContent: "$$A(x) = -x^2 + 20x \\implies \\text{Máximo en } x = 10\\text{m}$$"
+                    }
+                ]
+            },
+            {
+                unitId: 6,
+                badge: "Clase 06",
+                title: "Geometría Plana y Teorema de Napoleón",
+                subtitle: "Triángulos, congruencia, Teorema de Pitágoras y el Problema-Meta",
+                speakerNote: "Usa este tema para motivar el rigor formal de la geometría euclidiana y las construcciones con regla y compás.",
+                slides: [
+                    {
+                        tag: "1. Fundamentos Geométricos",
+                        heading: "Ángulos, Triángulos y Congruencia",
+                        htmlVisual: `
+                            <div class="grid grid-cols-3 gap-2 text-center text-xs my-2">
+                                <div class="p-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                                    <span class="font-bold text-blue-600 dark:text-blue-400 block">Agudo</span>
+                                    <span>$&lt; 90^\circ$</span>
+                                </div>
+                                <div class="p-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                                    <span class="font-bold text-emerald-600 dark:text-emerald-400 block">Recto</span>
+                                    <span>$= 90^\circ$</span>
+                                </div>
+                                <div class="p-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                                    <span class="font-bold text-purple-600 dark:text-purple-400 block">Obtuso</span>
+                                    <span>$&gt; 90^\circ$</span>
+                                </div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Suma de Ángulos Interiores:</strong> En todo triángulo euclidiano, la suma de sus tres ángulos internos es exactamente $180^\circ$.",
+                            "<strong>Criterios de Congruencia:</strong> LLL (Lado-Lado-Lado), LAL (Lado-Ángulo-Lado), ALA (Ángulo-Lado-Ángulo).",
+                            "<strong>Criterios de Semejanza:</strong> Triángulos con formas idénticas pero escalas proporcionales."
+                        ],
+                        boxTitle: "Propiedad Fundamental",
+                        boxContent: "$$\\alpha + \\beta + \\gamma = 180^\\circ$$"
+                    },
+                    {
+                        tag: "2. Teorema de Pitágoras",
+                        heading: "Triángulos Rectángulos y sus Lados",
+                        htmlVisual: `
+                            <div class="p-3 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 rounded-xl text-center my-2 text-xs">
+                                <span class="font-bold text-teal-800 dark:text-teal-300 block">Relación de Áreas Cuadradas</span>
+                                <div class="font-mono text-base font-bold text-teal-600 dark:text-teal-400 mt-1">$$a^2 + b^2 = c^2$$</div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Aplica Exclusivamente a:</strong> Triángulos rectángulos (con un ángulo recto de $90^\circ$).",
+                            "<strong>Catetos ($a, b$):</strong> Los dos lados menores que forman el ángulo recto.",
+                            "<strong>Hipotenusa ($c$):</strong> El lado opuesto al ángulo recto, siempre el más largo: $c = \\sqrt{a^2 + b^2}$."
+                        ],
+                        boxTitle: "Teorema de Pitágoras",
+                        boxContent: "$$c = \\sqrt{a^2 + b^2}$$"
+                    },
+                    {
+                        tag: "3. Problema-Meta",
+                        heading: "El Asombroso Teorema de Napoleón",
+                        htmlVisual: `
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-xs space-y-1 my-2">
+                                <span class="font-bold text-amber-800 dark:text-amber-300 block"><i class="fa-solid fa-gem"></i> Teorema Elegante:</span>
+                                <p class="text-slate-700 dark:text-slate-300">Si sobre los 3 lados de un triángulo cualquiera construyes triángulos equiláteros hacia afuera, los centros (baricentros) de esos 3 nuevos triángulos <strong>siempre forman otro triángulo equilátero perfecto</strong>.</p>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Atribuido a:</strong> Napoleón Bonaparte, apasionado promovente de la matemática y la geometría.",
+                            "<strong>Independencia de Forma:</strong> Funciona sin importar qué tan deforme o irregular sea el triángulo inicial.",
+                            "<strong>Significado Educativo:</strong> Representa la integración perfecta entre álgebra, simetría y geometría."
+                        ],
+                        boxTitle: "Propiedad Invariante",
+                        boxContent: "El triángulo formado por los baricentros siempre es rigurosamente equilátero."
+                    }
+                ]
+            }
+        ];
+
+        const quizQuestions = [
+            {
+                q: "1. En la ecuación lineal $4x - 12 = 20$, ¿cuál es el valor correcto de la incógnita $x$?",
+                options: ["x = 5", "x = 8", "x = 32", "x = 2"],
+                correct: 1,
+                explain: "Pasando $-12$ sumando: $4x = 20 + 12 = 32$. Dividiendo entre 4: $x = 32 / 4 = 8$."
+            },
+            {
+                q: "2. En la ecuación de la recta $y = -3x + 5$, ¿qué representa el valor $-3$?",
+                options: ["El corte con el eje X", "La ordenada al origen", "La pendiente m (decreciente)", "El origen del plano"],
+                correct: 2,
+                explain: "En $y = mx + b$, el coeficiente $m = -3$ es la pendiente. Al ser negativa, la recta es decreciente."
+            },
+            {
+                q: "3. ¿Qué método de solución de sistemas 2x2 utiliza determinantes ($\Delta, \Delta_x, \Delta_y$)?",
+                options: ["Método de Sustitución", "Regla de Cramer", "Método de Igualación", "Completar Cuadrados"],
+                correct: 1,
+                explain: "La Regla de Cramer utiliza matrices y determinantes para calcular $x = \Delta_x / \Delta$ e $y = \Delta_y / \Delta$."
+            },
+            {
+                q: "4. Si el discriminante de una ecuación cuadrática es $\Delta = b^2 - 4ac = 0$, ¿cuántas soluciones reales existen?",
+                options: ["Dos soluciones reales distintas", "Ninguna solución real", "Una única solución real (repetida)", "Infinitas soluciones"],
+                correct: 2,
+                explain: "Cuando $\Delta = 0$, la raíz cuadrada en la fórmula general vale 0, dejando una sola raíz real $x = -b / (2a)$."
+            },
+            {
+                q: "5. Si inviertes $10,000 MXN a una tasa del $8\%$ anual a interés compuesto durante $5$ años, la fórmula aplicada es:",
+                options: ["$A = 10000(1 + 0.08 \\times 5)$", "$A = 10000(1 + 0.08)^5$", "$A = 10000 + 0.08 / 5$", "$A = 10000 \\times 8 \\times 5$"],
+                correct: 1,
+                explain: "La fórmula del interés compuesto es $A = P(1 + r)^t$, donde los intereses se reinvierten en cada período."
+            },
+            {
+                q: "6. Según el Teorema del Triángulo de Napoleón, los baricentros de los 3 triángulos equiláteros construidos externamente forman siempre un triángulo:",
+                options: ["Isósceles", "Escaleno", "Equilátero", "Rectángulo"],
+                correct: 2,
+                explain: "El Teorema de Napoleón demuestra que los baricentros forman siempre un triángulo equilátero idéntico en ángulos de $60^\circ$."
+            }
+        ];
+
+        // State variables
+        let currentPresUnit = 1;
+        let currentSlideIndex = 0;
+        let activeLabUnit = 1;
+        let userQuizAnswers = {};
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            renderCurriculumTable();
+            renderPresentationDeck();
+            renderQuiz();
+            solveLinearEquation();
+            drawLinearGraph();
+            solveSystem2x2();
+            solveQuadratic();
+            simFinances();
+            simPopulation();
+            drawPythagoras();
+            drawNapoleonTheorem();
+            renderMath();
+        });
+
+        // THEME MANAGEMENT
+        function initTheme() {
+            isDarkMode = false;
+            document.documentElement.classList.remove('dark');
+            updateThemeUI();
+        }
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            updateThemeUI();
+            redrawActiveCanvas();
+        }
+
+        function updateThemeUI() {
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+                if (isDarkMode) {
+                    icon.className = 'fa-solid fa-moon text-indigo-400 text-[10px]';
+                } else {
+                    icon.className = 'fa-solid fa-sun text-amber-500 text-[10px]';
+                }
+            }
+        }
+
+        function redrawActiveCanvas() {
+            if (activeLabUnit === 2) drawLinearGraph();
+            if (activeLabUnit === 3) solveSystem2x2();
+            if (activeLabUnit === 4) solveQuadratic();
+            if (activeLabUnit === 6) { drawPythagoras(); drawNapoleonTheorem(); }
+        }
+
+        // TAB NAVIGATION
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-4 py-2.5 text-sm font-medium rounded-t-lg transition flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800";
+            });
+
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn) {
+                activeBtn.className = "tab-btn px-4 py-2.5 text-sm font-medium rounded-t-lg transition flex items-center gap-2 bg-blue-600 text-white shadow-sm";
+            }
+
+            if (tabId === 'tab-lab') {
+                setTimeout(redrawActiveCanvas, 50);
+            }
+            renderMath();
+        }
+
+        // TAB 1: CURRICULUM LOGIC
+        function renderCurriculumTable() {
+            const tbody = document.getElementById('curriculum-table-body');
+            const search = document.getElementById('table-search').value.toLowerCase();
+            const filter = document.getElementById('status-filter').value;
+
+            tbody.innerHTML = '';
+            let completedCount = 0;
+
+            curriculumData.forEach((item, index) => {
+                if (item.completed) completedCount++;
+
+                const matchesSearch = item.proposito.toLowerCase().includes(search) || 
+                                      item.contenidos.some(c => c.toLowerCase().includes(search));
+                
+                let matchesStatus = true;
+                if (filter === 'pending') matchesStatus = !item.completed;
+                if (filter === 'completed') matchesStatus = item.completed;
+
+                if (matchesSearch && matchesStatus) {
+                    const row = document.createElement('tr');
+                    row.className = item.completed 
+                        ? "bg-emerald-50/50 dark:bg-emerald-950/10 hover:bg-emerald-100/50 dark:hover:bg-emerald-950/20 transition-colors"
+                        : "hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors";
+
+                    row.innerHTML = `
+                        <td class="py-4 px-4 sm:px-6 text-center font-bold text-slate-500 dark:text-slate-400">${item.id}</td>
+                        <td class="py-4 px-4 sm:px-6 font-medium text-slate-800 dark:text-slate-200 leading-relaxed">${item.proposito}</td>
+                        <td class="py-4 px-4 sm:px-6 text-xs text-slate-600 dark:text-slate-300">
+                            <ul class="list-disc list-inside space-y-1">
+                                ${item.contenidos.map(c => `<li>${c}</li>`).join('')}
+                            </ul>
+                        </td>
+                        <td class="py-4 px-4 sm:px-6 text-center">
+                            <button onclick="toggleCurriculumStatus(${item.id})" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition border flex items-center gap-1.5 mx-auto ${
+                                item.completed 
+                                ? 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/60 dark:text-emerald-200 dark:border-emerald-700' 
+                                : 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600 hover:bg-slate-200'
+                            }">
+                                <i class="fa-solid ${item.completed ? 'fa-check-circle text-emerald-600 dark:text-emerald-400' : 'fa-circle-notch'}"></i>
+                                <span>${item.completed ? 'Completado' : 'Marcar visto'}</span>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            });
+
+            document.getElementById('global-progress-text').innerText = `${completedCount} / 6 Unidades`;
+            renderMath();
+        }
+
+        function toggleCurriculumStatus(id) {
+            const item = curriculumData.find(c => c.id === id);
+            if (item) {
+                item.completed = !item.completed;
+                renderCurriculumTable();
+            }
+        }
+
+        function filterCurriculumTable() {
+            renderCurriculumTable();
+        }
+
+        // TAB 2: PRESENTATIONS LOGIC
+        function selectPresentationUnit(unitNum) {
+            currentPresUnit = unitNum;
+            currentSlideIndex = 0;
+
+            for (let i = 1; i <= 6; i++) {
+                const btn = document.getElementById(`pres-nav-${i}`);
+                if (btn) {
+                    if (i === unitNum) {
+                        btn.className = "pres-nav-btn p-3 rounded-xl border text-left transition flex flex-col justify-between h-20 bg-blue-600 text-white border-blue-500 shadow-md";
+                        btn.querySelector('span:first-child').className = "text-[10px] uppercase font-bold text-blue-200";
+                    } else {
+                        btn.className = "pres-nav-btn p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-blue-400 text-left transition flex flex-col justify-between h-20";
+                        btn.querySelector('span:first-child').className = "text-[10px] uppercase font-bold text-slate-400";
+                    }
+                }
+            }
+            renderPresentationDeck();
+        }
+
+        function renderPresentationDeck() {
+            const unitObj = presentationsData.find(p => p.unitId === currentPresUnit) || presentationsData[0];
+            const slide = unitObj.slides[currentSlideIndex];
+
+            document.getElementById('pres-unit-badge').innerText = unitObj.badge;
+            document.getElementById('pres-class-title').innerText = unitObj.title;
+            document.getElementById('pres-class-subtitle').innerText = unitObj.subtitle;
+            document.getElementById('pres-speaker-note').innerText = unitObj.speakerNote;
+
+            document.getElementById('pres-slide-indicator').innerText = `Diapositiva ${currentSlideIndex + 1} / ${unitObj.slides.length}`;
+            document.getElementById('btn-prev-slide').disabled = (currentSlideIndex === 0);
+            document.getElementById('btn-next-slide').disabled = (currentSlideIndex === unitObj.slides.length - 1);
+
+            const area = document.getElementById('slide-content-area');
+            area.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wide bg-blue-50 dark:bg-blue-900/40 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800">${slide.tag}</span>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">${slide.heading}</h2>
+
+                    ${slide.htmlVisual || ''}
+
+                    <div class="space-y-2 mt-4 text-xs sm:text-sm text-slate-700 dark:text-slate-200">
+                        ${slide.bullets.map(b => `<div class="flex items-start gap-2.5"><i class="fa-solid fa-angle-right text-blue-500 mt-1"></i><div class="leading-relaxed">${b}</div></div>`).join('')}
+                    </div>
+                </div>
+
+                <div class="mt-6 p-4 rounded-xl bg-blue-50/80 dark:bg-slate-900/80 border border-blue-200 dark:border-blue-800/80 text-center text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-100 shadow-sm">
+                    <div class="text-[10px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-wider mb-1">${slide.boxTitle}</div>
+                    <div>${slide.boxContent}</div>
+                </div>
+            `;
+
+            renderMath();
+        }
+
+        function prevSlide() {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                renderPresentationDeck();
+            }
+        }
+
+        function nextSlide() {
+            const unitObj = presentationsData.find(p => p.unitId === currentPresUnit);
+            if (unitObj && currentSlideIndex < unitObj.slides.length - 1) {
+                currentSlideIndex++;
+                renderPresentationDeck();
+            }
+        }
+
+        function toggleFullscreenPresentation() {
+            const deckBox = document.getElementById('presentation-deck-box');
+            const isFull = deckBox.classList.contains('presentation-fullscreen');
+            
+            if (!isFull) {
+                deckBox.classList.add('presentation-fullscreen');
+                document.getElementById('fullscreen-icon').className = "fa-solid fa-compress";
+                document.getElementById('fullscreen-text').innerText = "Salir de Pantalla Completa";
+            } else {
+                deckBox.classList.remove('presentation-fullscreen');
+                document.getElementById('fullscreen-icon').className = "fa-solid fa-expand";
+                document.getElementById('fullscreen-text').innerText = "Pantalla Completa";
+            }
+        }
+
+        // TAB 3: LAB NAVIGATION & SOLVERS
+        function switchLabUnit(num) {
+            activeLabUnit = num;
+            for (let i = 1; i <= 6; i++) {
+                const btn = document.getElementById(`lab-btn-${i}`);
+                const view = document.getElementById(`unit-lab-${i}`);
+                if (btn && view) {
+                    if (i === num) {
+                        btn.className = "unit-lab-btn bg-blue-600 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-2 shadow-sm";
+                        view.classList.remove('hidden');
+                    } else {
+                        btn.className = "unit-lab-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-2";
+                        view.classList.add('hidden');
+                    }
+                }
+            }
+            redrawActiveCanvas();
+            renderMath();
+        }
+
+        // UNIT 1 LAB: LINEAR SOLVER
+        function solveLinearEquation() {
+            const a = parseFloat(document.getElementById('u1-a').value) || 0;
+            const b = parseFloat(document.getElementById('u1-b').value) || 0;
+            const c = parseFloat(document.getElementById('u1-c').value) || 0;
+
+            const disp = document.getElementById('u1-equation-display');
+            const steps = document.getElementById('u1-steps');
+
+            const signB = b >= 0 ? `+ ${b}` : `- ${Math.abs(b)}`;
+            disp.innerText = `${a}x ${signB} = ${c}`;
+
+            if (a === 0) {
+                steps.innerHTML = `<div class="p-3 bg-red-100 text-red-800 rounded-lg">El coeficiente <strong>a</strong> no puede ser cero en una ecuación lineal.</div>`;
+                return;
+            }
+
+            const cMinusB = c - b;
+            const x = cMinusB / a;
+
+            steps.innerHTML = `
+                <div class="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <strong>Paso 1 (Transposición de término independiente):</strong><br>
+                    $${a}x = ${c} - (${b}) \\implies ${a}x = ${cMinusB}$
+                </div>
+                <div class="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <strong>Paso 2 (Despejar x dividiendo entre a = ${a}):</strong><br>
+                    $x = \\frac{${cMinusB}}{${a}} \\implies x = ${Number(x.toFixed(4))}$
+                </div>
+                <div class="p-3 bg-emerald-100 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800 rounded-lg">
+                    <strong>Comprobación:</strong> $${a}(${Number(x.toFixed(4))}) + (${b}) = ${Number((a*x + b).toFixed(2))} \\quad \\checkmark$
+                </div>
+            `;
+            renderMath();
+        }
+
+        function randomizeLinearEquation() {
+            document.getElementById('u1-a').value = Math.floor(Math.random() * 9) + 1;
+            document.getElementById('u1-b').value = Math.floor(Math.random() * 20) - 10;
+            document.getElementById('u1-c').value = Math.floor(Math.random() * 30) - 5;
+            solveLinearEquation();
+        }
+
+        // UNIT 2 LAB: LINEAR GRAPH
+        function drawLinearGraph() {
+            const m = parseFloat(document.getElementById('u2-m').value);
+            const b = parseFloat(document.getElementById('u2-b').value);
+
+            document.getElementById('u2-m-val').innerText = m.toFixed(1);
+            document.getElementById('u2-b-val').innerText = b.toFixed(1);
+
+            const signB = b >= 0 ? `+ ${b.toFixed(1)}` : `- ${Math.abs(b).toFixed(1)}`;
+            document.getElementById('u2-eq-text').innerText = `y = ${m.toFixed(1)}x ${signB}`;
+            document.getElementById('u2-y-intercept').innerText = `(0, ${b.toFixed(1)})`;
+            
+            const xInt = m !== 0 ? (-b / m).toFixed(2) : 'No corta (paralela)';
+            document.getElementById('u2-x-intercept').innerText = m !== 0 ? `(${xInt}, 0)` : 'No existe';
+            document.getElementById('u2-slope-type').innerText = m > 0 ? 'Creciente (m > 0)' : (m < 0 ? 'Decreciente (m < 0)' : 'Horizontal (m = 0)');
+
+            const canvas = document.getElementById('canvas-u2');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Origin center
+            const cx = w / 2;
+            const cy = h / 2;
+            const scale = 25; // 25px per unit
+
+            // Draw grid
+            ctx.strokeStyle = isDarkMode ? '#1e293b' : '#f1f5f9';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < w; x += scale) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+            }
+            for (let y = 0; y < h; y += scale) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+            }
+
+            // Draw Axes
+            ctx.strokeStyle = isDarkMode ? '#64748b' : '#94a3b8';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
+
+            // Draw Line y = mx + b
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+
+            const xMin = -10;
+            const xMax = 10;
+            const y1 = m * xMin + b;
+            const y2 = m * xMax + b;
+
+            const px1 = cx + xMin * scale;
+            const py1 = cy - y1 * scale;
+            const px2 = cx + xMax * scale;
+            const py2 = cy - y2 * scale;
+
+            ctx.moveTo(px1, py1);
+            ctx.lineTo(px2, py2);
+            ctx.stroke();
+
+            // Highlight Y-intercept
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath();
+            ctx.arc(cx, cy - b * scale, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // UNIT 3 LAB: SYSTEM 2x2
+        function solveSystem2x2() {
+            const a1 = parseFloat(document.getElementById('u3-a1').value) || 0;
+            const b1 = parseFloat(document.getElementById('u3-b1').value) || 0;
+            const c1 = parseFloat(document.getElementById('u3-c1').value) || 0;
+
+            const a2 = parseFloat(document.getElementById('u3-a2').value) || 0;
+            const b2 = parseFloat(document.getElementById('u3-b2').value) || 0;
+            const c2 = parseFloat(document.getElementById('u3-c2').value) || 0;
+
+            const method = document.getElementById('u3-method').value;
+            const expDiv = document.getElementById('u3-method-explanation');
+
+            const D = a1 * b2 - a2 * b1;
+            const Dx = c1 * b2 - c2 * b1;
+            const Dy = a1 * c2 - a2 * c1;
+
+            if (D === 0) {
+                document.getElementById('u3-solution-coords').innerText = "Sin solución única (Líneas Paralelas)";
+                expDiv.innerHTML = `<div>El determinante principal es $\\Delta = 0$. El sistema no tiene solución única.</div>`;
+            } else {
+                const x = Dx / D;
+                const y = Dy / D;
+                document.getElementById('u3-solution-coords').innerText = `(x = ${x.toFixed(2)}, y = ${y.toFixed(2)})`;
+
+                if (method === 'determinants') {
+                    expDiv.innerHTML = `
+                        <div><strong>Método de Cramer (Determinantes):</strong></div>
+                        <div>$\\Delta = (${a1})(${b2}) - (${a2})(${b1}) = ${D}$</div>
+                        <div>$\\Delta_x = (${c1})(${b2}) - (${c2})(${b1}) = ${Dx}$</div>
+                        <div>$\\Delta_y = (${a1})(${c2}) - (${a2})(${c1}) = ${Dy}$</div>
+                        <div>$x = \\frac{\\Delta_x}{\\Delta} = \\frac{${Dx}}{${D}} = ${x.toFixed(2)}$</div>
+                        <div>$y = \\frac{\\Delta_y}{\\Delta} = \\frac{${Dy}}{${D}} = ${y.toFixed(2)}$</div>
+                    `;
+                } else if (method === 'substitution') {
+                    expDiv.innerHTML = `
+                        <div><strong>Método de Sustitución:</strong></div>
+                        <div>De ec. 1: $y = \\frac{${c1} - (${a1})x}{${b1}}$</div>
+                        <div>Sustituyendo en ec. 2 y despejando $x$:</div>
+                        <div>$x = ${x.toFixed(2)}, \\quad y = ${y.toFixed(2)}$</div>
+                    `;
+                } else {
+                    expDiv.innerHTML = `
+                        <div><strong>Resolución Algorítmica:</strong></div>
+                        <div>Punto de intersección único obtenido:</div>
+                        <div>$x = ${x.toFixed(2)}, \\quad y = ${y.toFixed(2)}$</div>
+                    `;
+                }
+            }
+
+            // Draw System Canvas
+            const canvas = document.getElementById('canvas-u3');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+
+            const cx = w / 2;
+            const cy = h / 2;
+            const scale = 20;
+
+            // Grid
+            ctx.strokeStyle = isDarkMode ? '#1e293b' : '#f1f5f9';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < w; x += scale) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+            for (let y = 0; y < h; y += scale) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+            // Axes
+            ctx.strokeStyle = isDarkMode ? '#64748b' : '#94a3b8';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
+
+            // Line 1: a1 x + b1 y = c1 -> y = (c1 - a1 x)/b1
+            if (b1 !== 0) {
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                const xA = -15, yA = (c1 - a1 * xA) / b1;
+                const xB = 15, yB = (c1 - a1 * xB) / b1;
+                ctx.moveTo(cx + xA * scale, cy - yA * scale);
+                ctx.lineTo(cx + xB * scale, cy - yB * scale);
+                ctx.stroke();
+            }
+
+            // Line 2: a2 x + b2 y = c2 -> y = (c2 - a2 x)/b2
+            if (b2 !== 0) {
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                const xA = -15, yA = (c2 - a2 * xA) / b2;
+                const xB = 15, yB = (c2 - a2 * xB) / b2;
+                ctx.moveTo(cx + xA * scale, cy - yA * scale);
+                ctx.lineTo(cx + xB * scale, cy - yB * scale);
+                ctx.stroke();
+            }
+
+            // Draw intersection point
+            if (D !== 0) {
+                const xSol = Dx / D;
+                const ySol = Dy / D;
+                ctx.fillStyle = '#f59e0b';
+                ctx.beginPath();
+                ctx.arc(cx + xSol * scale, cy - ySol * scale, 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            renderMath();
+        }
+
+        // UNIT 4 LAB: QUADRATIC SOLVER
+        function solveQuadratic() {
+            const a = parseFloat(document.getElementById('u4-a').value) || 0;
+            const b = parseFloat(document.getElementById('u4-b').value) || 0;
+            const c = parseFloat(document.getElementById('u4-c').value) || 0;
+
+            const discEl = document.getElementById('u4-discriminant');
+            const x1El = document.getElementById('u4-x1');
+            const x2El = document.getElementById('u4-x2');
+            const vertEl = document.getElementById('u4-vertex');
+            const stepsEl = document.getElementById('u4-steps');
+
+            if (a === 0) {
+                discEl.innerText = "Error: 'a' no puede ser 0";
+                return;
+            }
+
+            const delta = b * b - 4 * a * c;
+            const h = -b / (2 * a);
+            const k = a * h * h + b * h + c;
+            vertEl.innerText = `(${h.toFixed(2)}, ${k.toFixed(2)})`;
+
+            if (delta > 0) {
+                discEl.innerText = `Δ = ${delta.toFixed(2)} (2 soluciones reales)`;
+                const x1 = (-b + Math.sqrt(delta)) / (2 * a);
+                const x2 = (-b - Math.sqrt(delta)) / (2 * a);
+                x1El.innerText = x1.toFixed(2);
+                x2El.innerText = x2.toFixed(2);
+
+                stepsEl.innerHTML = `
+                    <div><strong>Fórmula de Bhaskara:</strong> $x = \\frac{-(${b}) \\pm \\sqrt{${delta.toFixed(2)}}}{2(${a})}$</div>
+                    <div>$x_1 = \\frac{${-b} + ${Math.sqrt(delta).toFixed(2)}}{${2*a}} = ${x1.toFixed(2)}$</div>
+                    <div>$x_2 = \\frac{${-b} - ${Math.sqrt(delta).toFixed(2)}}{${2*a}} = ${x2.toFixed(2)}$</div>
+                `;
+            } else if (delta === 0) {
+                discEl.innerText = `Δ = 0 (1 solución repetida)`;
+                const x1 = -b / (2 * a);
+                x1El.innerText = x1.toFixed(2);
+                x2El.innerText = x1.toFixed(2);
+
+                stepsEl.innerHTML = `
+                    <div><strong>Solución Única:</strong> $x = \\frac{-(${b})}{2(${a})} = ${x1.toFixed(2)}$</div>
+                `;
+            } else {
+                discEl.innerText = `Δ = ${delta.toFixed(2)} (Sin raíces reales)`;
+                x1El.innerText = "No real";
+                x2El.innerText = "No real";
+
+                stepsEl.innerHTML = `
+                    <div>El discriminante es negativo ($\\Delta < 0$). La parábola no corta al eje X en números reales.</div>
+                `;
+            }
+
+            // Draw Parabola Canvas
+            const canvas = document.getElementById('canvas-u4');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const hCanvas = canvas.height;
+            ctx.clearRect(0, 0, w, hCanvas);
+
+            const cx = w / 2;
+            const cy = hCanvas / 2 + 30;
+            const scale = 15;
+
+            // Axes
+            ctx.strokeStyle = isDarkMode ? '#64748b' : '#94a3b8';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, hCanvas); ctx.stroke();
+
+            // Parabola
+            ctx.strokeStyle = '#a855f7';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            let started = false;
+
+            for (let px = 0; px < w; px += 2) {
+                const xVal = (px - cx) / scale;
+                const yVal = a * xVal * xVal + b * xVal + c;
+                const py = cy - yVal * scale;
+
+                if (!started) {
+                    ctx.moveTo(px, py);
+                    started = true;
+                } else {
+                    ctx.lineTo(px, py);
+                }
+            }
+            ctx.stroke();
+
+            // Vertex point
+            ctx.fillStyle = '#f59e0b';
+            ctx.beginPath();
+            ctx.arc(cx + h * scale, cy - k * scale, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            renderMath();
+        }
+
+        // UNIT 5 LAB: APPLICATIONS
+        function simFinances() {
+            const P = parseFloat(document.getElementById('u5-principal').value) || 0;
+            const r = (parseFloat(document.getElementById('u5-rate').value) || 0) / 100;
+            const t = parseFloat(document.getElementById('u5-years').value) || 0;
+
+            const simple = P * (1 + r * t);
+            const compound = P * Math.pow(1 + r, t);
+
+            document.getElementById('u5-simple-res').innerText = `$${simple.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            document.getElementById('u5-compound-res').innerText = `$${compound.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        }
+
+        function simPopulation() {
+            const N0 = parseFloat(document.getElementById('u5-n0').value) || 0;
+            const r = (parseFloat(document.getElementById('u5-pop-rate').value) || 0) / 100;
+            const t = parseFloat(document.getElementById('u5-pop-years').value) || 0;
+
+            const Nt = N0 * Math.pow(1 + r, t);
+            document.getElementById('u5-pop-res').innerText = `Población estimada: ${Math.round(Nt).toLocaleString()} individuos`;
+        }
+
+        // UNIT 6 LAB: GEOMETRY & NAPOLEON
+        function drawPythagoras() {
+            const a = parseFloat(document.getElementById('u6-a').value) || 3;
+            const b = parseFloat(document.getElementById('u6-b').value) || 4;
+
+            const c = Math.sqrt(a * a + b * b);
+            const area = 0.5 * a * b;
+            const perim = a + b + c;
+
+            document.getElementById('u6-c-val').innerText = c.toFixed(2);
+            document.getElementById('u6-area').innerText = area.toFixed(2);
+            document.getElementById('u6-perim').innerText = perim.toFixed(2);
+
+            const canvas = document.getElementById('canvas-u6-pyth');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const scale = Math.min(140 / a, 140 / b);
+            const ox = 40;
+            const oy = 170;
+
+            ctx.strokeStyle = '#0d9488';
+            ctx.fillStyle = isDarkMode ? 'rgba(13, 148, 136, 0.2)' : 'rgba(13, 148, 136, 0.1)';
+            ctx.lineWidth = 3;
+
+            ctx.beginPath();
+            ctx.moveTo(ox, oy);
+            ctx.lineTo(ox + b * scale, oy);
+            ctx.lineTo(ox, oy - a * scale);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Right angle symbol
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 1.5;
+            ctx.strokeRect(ox, oy - 15, 15, 15);
+        }
+
+        let napoleonOffset = 0;
+        function drawNapoleonTheorem() {
+            napoleonOffset += 15;
+            const canvas = document.getElementById('canvas-u6-napoleon');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+
+            // Base triangle vertices
+            const A = { x: 100 + Math.sin(napoleonOffset * 0.1) * 20, y: 160 };
+            const B = { x: 260, y: 170 };
+            const C = { x: 170 + Math.cos(napoleonOffset * 0.1) * 25, y: 70 };
+
+            // Draw Base Triangle
+            ctx.strokeStyle = isDarkMode ? '#94a3b8' : '#475569';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y); ctx.lineTo(C.x, C.y); ctx.closePath();
+            ctx.stroke();
+
+            // Helper to get exterior equilateral vertex and centroid
+            function getEquilateralCentroid(p1, p2) {
+                const dx = p2.x - p1.x;
+                const dy = p2.y - p1.y;
+                const len = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) - Math.PI / 3;
+
+                const p3 = {
+                    x: p1.x + len * Math.cos(angle),
+                    y: p1.y + len * Math.sin(angle)
+                };
+
+                // Centroid
+                const center = {
+                    x: (p1.x + p2.x + p3.x) / 3,
+                    y: (p1.y + p2.y + p3.y) / 3
+                };
+
+                return { p3, center };
+            }
+
+            const eq1 = getEquilateralCentroid(A, B);
+            const eq2 = getEquilateralCentroid(B, C);
+            const eq3 = getEquilateralCentroid(C, A);
+
+            // Draw Outer Triangles
+            ctx.strokeStyle = '#38bdf8';
+            ctx.lineWidth = 1;
+            [ [A, B, eq1.p3], [B, C, eq2.p3], [C, A, eq3.p3] ].forEach(tri => {
+                ctx.beginPath();
+                ctx.moveTo(tri[0].x, tri[0].y);
+                ctx.lineTo(tri[1].x, tri[1].y);
+                ctx.lineTo(tri[2].x, tri[2].y);
+                ctx.closePath();
+                ctx.stroke();
+            });
+
+            // Draw Napoleon Equilateral Triangle (Centroids)
+            ctx.strokeStyle = '#f59e0b';
+            ctx.fillStyle = 'rgba(245, 158, 11, 0.25)';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(eq1.center.x, eq1.center.y);
+            ctx.lineTo(eq2.center.x, eq2.center.y);
+            ctx.lineTo(eq3.center.x, eq3.center.y);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Centroid points
+            ctx.fillStyle = '#f59e0b';
+            [eq1.center, eq2.center, eq3.center].forEach(p => {
+                ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI * 2); ctx.fill();
+            });
+        }
+
+        // TAB 4: QUIZ LOGIC
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            quizQuestions.forEach((q, qIndex) => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 dark:bg-slate-900/70 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3";
+
+                card.innerHTML = `
+                    <p class="font-semibold text-sm text-slate-800 dark:text-slate-100">${q.q}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        ${q.options.map((opt, oIndex) => `
+                            <button onclick="selectQuizAnswer(${qIndex}, ${oIndex})" id="quiz-opt-${qIndex}-${oIndex}" class="quiz-opt-btn p-3 rounded-lg border text-left transition ${
+                                userQuizAnswers[qIndex] === oIndex
+                                ? 'bg-blue-600 text-white border-blue-600 font-bold'
+                                : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-blue-400'
+                            }">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div id="quiz-explain-${qIndex}" class="hidden p-3 rounded-lg text-xs leading-relaxed"></div>
+                `;
+                container.appendChild(card);
+            });
+
+            renderMath();
+        }
+
+        function selectQuizAnswer(qIndex, oIndex) {
+            userQuizAnswers[qIndex] = oIndex;
+            renderQuiz();
+            evaluateQuiz();
+        }
+
+        function evaluateQuiz() {
+            let score = 0;
+            const total = quizQuestions.length;
+
+            quizQuestions.forEach((q, qIndex) => {
+                const userAns = userQuizAnswers[qIndex];
+                const explainDiv = document.getElementById(`quiz-explain-${qIndex}`);
+
+                if (userAns !== undefined && explainDiv) {
+                    explainDiv.classList.remove('hidden');
+                    if (userAns === q.correct) {
+                        score++;
+                        explainDiv.className = "p-3 rounded-lg text-xs leading-relaxed bg-emerald-100 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800";
+                        explainDiv.innerHTML = `<strong>¡Correcto!</strong> ${q.explain}`;
+                    } else {
+                        explainDiv.className = "p-3 rounded-lg text-xs leading-relaxed bg-rose-100 dark:bg-rose-950/50 text-rose-900 dark:text-rose-200 border border-rose-300 dark:border-rose-800";
+                        explainDiv.innerHTML = `<strong>Respuesta Incorrecta.</strong> ${q.explain}`;
+                    }
+                }
+            });
+
+            document.getElementById('quiz-score').innerText = `${score} / ${total}`;
+            const banner = document.getElementById('quiz-feedback-banner');
+            if (Object.keys(userQuizAnswers).length === total) {
+                banner.innerText = score >= 5 ? "🎉 ¡Excelente dominio de los propósitos del curso!" : "💡 Buen intento. Revisa los solucionadores para reforzar conceptos.";
+            }
+            renderMath();
+        }
+
+        function resetQuiz() {
+            userQuizAnswers = {};
+            document.getElementById('quiz-score').innerText = `0 / 6`;
+            document.getElementById('quiz-feedback-banner').innerText = "";
+            renderQuiz();
+        }
+
+        // TAB 5: AI TUTOR LOGIC
+        function sendSuggestedPrompt(text) {
+            document.getElementById('ai-user-input').value = text;
+            sendAiMessage();
+        }
+
+        function handleAiKeyPress(e) {
+            if (e.key === 'Enter') sendAiMessage();
+        }
+
+        function sendAiMessage() {
+            const input = document.getElementById('ai-user-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const history = document.getElementById('ai-chat-history');
+
+            // User Message
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.className = "flex items-start gap-3 justify-end";
+            userMsgDiv.innerHTML = `
+                <div class="bg-blue-600 text-white p-3.5 rounded-2xl rounded-tr-none text-xs sm:text-sm max-w-[85%] leading-relaxed shadow-sm">
+                    ${msg}
+                </div>
+            `;
+            history.appendChild(userMsgDiv);
+            input.value = '';
+            history.scrollTop = history.scrollHeight;
+
+            // Simulated AI Response
+            setTimeout(() => {
+                const aiMsgDiv = document.createElement('div');
+                aiMsgDiv.className = "flex items-start gap-3";
+                
+                let responseText = "Entendido. Para resolver este tipo de problemas en Pensamiento Matemático III, identificamos la ecuación base, aplicamos las reglas de despeje o determinantes y verificamos sustituyendo en la expresión original.";
+
+                const lower = msg.toLowerCase();
+                if (lower.includes('cramer') || lower.includes('determinantes')) {
+                    responseText = "El <strong>Método de Cramer</strong> utiliza determinantes de matrices $2 \\times 2$. Dado un sistema $a_1x + b_1y = c_1$, calculamos el determinante principal $\\Delta = a_1b_2 - a_2b_1$. Si $\\Delta \\neq 0$, las soluciones son $x = \\frac{\\Delta_x}{\\Delta}$ e $y = \\frac{\\Delta_y}{\\Delta}$.";
+                } else if (lower.includes('vértice') || lower.includes('cuadrática')) {
+                    responseText = "En la parábola $y = ax^2 + bx + c$, la coordenada $h$ del vértice es $h = -\\frac{b}{2a}$. Al evaluar este valor en la función se obtiene la altura máxima o mínima $k = f(h)$.";
+                } else if (lower.includes('interés') || lower.includes('compuesto')) {
+                    responseText = "El <strong>Interés Compuesto</strong> se calcula con $A = P(1 + r)^t$. A diferencia del interés simple ($A = P(1 + rt)$), las ganancias se reinvierten en cada ciclo, produciendo una curva de crecimiento exponencial.";
+                } else if (lower.includes('napoleón')) {
+                    responseText = "El <strong>Teorema de Napoleón</strong> establece que al construir triángulos equiláteros sobre los tres lados de cualquier triángulo en el plano, los centros (baricentros) de esos nuevos triángulos siempre forman un triángulo equilátero perfecto.";
+                }
+
+                aiMsgDiv.innerHTML = `
+                    <div class="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-600/30 border border-indigo-200 dark:border-indigo-500/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-sm">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl rounded-tl-none border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-slate-200 max-w-[85%] leading-relaxed shadow-sm">
+                        ${responseText}
+                    </div>
+                `;
+                history.appendChild(aiMsgDiv);
+                history.scrollTop = history.scrollHeight;
+                renderMath();
+            }, 500);
+        }
+
+        // KATEX RENDER HELPER
+        function renderMath() {
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ],
+                    throwOnError: false
+                });
+            }
+        }
+    </script>
+</body>
+</html>

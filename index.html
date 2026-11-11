@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Académico Profesional - Selección de Materias DGB</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        /* Ocultar la tabla de reporte en pantalla normal */
+        .print-only-report {
+            display: none;
+        }
+
+        /* Estilos ejecutivos optimizados para Impresión y Exportación PDF a modo de Reporte */
+        @media print {
+            /* Definir orientación horizontal (landscape) y márgenes en 0 para eliminar encabezados/pies automáticos */
+            @page {
+                size: letter landscape;
+                margin: 0mm;
+            }
+
+            /* Ocultar elementos de la interfaz regular */
+            .no-print, header, footer, main > div:not(.print-only-report) {
+                display: none !important;
+            }
+
+            body {
+                background-color: white !important;
+                color: #0f172a !important;
+                font-family: 'Inter', sans-serif !important;
+                padding: 1.2cm 1.5cm !important;
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Ocultar cualquier pseudoelemento o subtexto de enlace al imprimir */
+            a[href]:after {
+                content: "" !important;
+            }
+            .url-print {
+                display: none !important;
+            }
+
+            /* Mostrar únicamente la estructura de reporte en tabla */
+            .print-only-report {
+                display: block !important;
+                width: 100% !important;
+            }
+
+            .report-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+            }
+
+            .report-table th {
+                background-color: #f1f5f9 !important;
+                color: #0f172a !important;
+                font-weight: 700;
+                text-transform: uppercase;
+                font-size: 10px;
+                letter-spacing: 0.05em;
+                padding: 10px;
+                border: 1px solid #cbd5e1;
+                text-align: left;
+            }
+
+            .report-table td {
+                padding: 10px;
+                border: 1px solid #e2e8f0;
+                font-size: 11px;
+                vertical-align: top;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col justify-between transition-colors duration-200">
+
+    <!-- Encapabezado Institucional -->
+    <header class="bg-white/80 dark:bg-slate-800/80 backdrop-blur border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-3 bg-blue-600 rounded-xl text-white shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
+                        Portal Académico Institucional
+                        <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-500/10 dark:bg-blue-500/25 text-blue-600 dark:text-blue-300 border border-blue-500/30">DGB</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Centro de Estudios de Bachillerato 9/18 • Selección de Asignaturas</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-3">
+                <!-- Botones de Acción Profesional: Imprimir y PDF -->
+                <div class="flex items-center gap-2 no-print">
+                    <button onclick="window.print()" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" title="Imprimir esta página">
+                        <i class="fa-solid fa-print text-slate-500 dark:text-slate-400"></i>
+                        <span>Imprimir</span>
+                    </button>
+                    
+                    <button onclick="window.print()" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 transition-all duration-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500" title="Guardar como PDF">
+                        <i class="fa-solid fa-file-pdf text-red-500"></i>
+                        <span>Guardar PDF</span>
+                    </button>
+                </div>
+
+                <!-- Separador -->
+                <div class="h-6 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block no-print"></div>
+
+                <!-- Toggle de Tema (Modo Claro / Oscuro) estilo Google -->
+                <button onclick="toggleTheme()" class="relative w-20 h-10 rounded-full bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 p-1 flex items-center transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner no-print" aria-label="Cambiar tema">
+                    <div id="toggle-thumb" class="w-8 h-8 rounded-full bg-white dark:bg-slate-800 shadow-md flex items-center justify-center transform transition-transform duration-300 translate-x-0 dark:translate-x-10">
+                        <i id="theme-icon" class="fa-solid fa-sun text-amber-500 text-sm"></i>
+                    </div>
+                    <div class="absolute inset-0 flex justify-between items-center px-3.5 pointer-events-none text-xs">
+                        <i class="fa-solid fa-sun text-amber-500 opacity-40 dark:opacity-100"></i>
+                        <i class="fa-solid fa-moon text-blue-400 opacity-100 dark:opacity-40"></i>
+                    </div>
+                </button>
+
+                <!-- Badge del Profesor Titular -->
+                <div class="flex items-center gap-2 text-xs bg-slate-100 dark:bg-slate-900/60 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <i class="fa-solid fa-user-tie text-blue-500 dark:text-blue-400"></i>
+                    <span class="text-slate-500 dark:text-slate-400">Profesor Titular:</span>
+                    <span class="font-bold text-slate-800 dark:text-white">Dr. Adrian Cipriano Lara</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col justify-center">
+        
+        <!-- REPORTE EXCLUSIVO PARA IMPRESIÓN Y PDF (VISTA EN TABLA PROFESIONAL) -->
+        <div class="print-only-report">
+            <!-- Header Institucional del Reporte -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2563eb; padding-bottom: 12px; margin-bottom: 15px;">
+                <div>
+                    <h1 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0;">PORTAL ACADÉMICO INSTITUCIONAL DGB</h1>
+                    <p style="font-size: 11px; color: #475569; margin: 2px 0 0 0;">Centro de Estudios de Bachillerato 9/18 • Reporte Oficial de Oferta Académica</p>
+                </div>
+                <div style="text-align: right; font-size: 10px; color: #64748b;">
+                    <p style="margin: 0;"><strong>Ciclo Escolar:</strong> 2026-2027</p>
+                    <p style="margin: 2px 0 0 0;"><strong>Profesor Titular:</strong> Dr. Adrian Cipriano Lara</p>
+                </div>
+            </div>
+
+            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; font-size: 11px; margin-bottom: 15px; color: #334155;">
+                <strong>Resumen del Marco Curricular:</strong> Programa oficial ajustado a los lineamientos y propósitos formativos de la Dirección General del Bachillerato (DGB).
+            </div>
+
+            <!-- Tabla de Asignaturas -->
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Asignatura</th>
+                        <th style="width: 20%;">Componente / Semestre</th>
+                        <th style="width: 15%;">Carga Horaria</th>
+                        <th style="width: 40%;">Meta Educativa & Propósito</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <strong style="color: #2563eb; font-size: 12px;">Pensamiento Matemático III</strong>
+                        </td>
+                        <td>Componente Fundamental<br><span style="color: #64748b;">3er Semestre</span></td>
+                        <td>64 hrs totales<br><span style="color: #64748b;">(4 hrs semanales)</span></td>
+                        <td style="font-style: italic; color: #334155;">"Aplique el lenguaje algebraico como herramienta para describir situaciones de la realidad y expresar relaciones matemáticas, y mediante procesos de intuición y razonamiento, logre explicar y resolver problemas."</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong style="color: #059669; font-size: 12px;">TICS Hoja de Cálculo Aplicado</strong>
+                        </td>
+                        <td>Capacitación Tecnológica<br><span style="color: #64748b;">3er Semestre</span></td>
+                        <td>64 hrs totales<br><span style="color: #64748b;">(4 hrs semanales)</span></td>
+                        <td style="font-style: italic; color: #334155;">"Prepara información a través de la manipulación de datos y fórmulas, elaborando gráficos en una aplicación de hoja de cálculo, resolviendo de manera creativa e innovadora, situaciones en diversos ambientes y contextos."</td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong style="color: #d97706; font-size: 12px;">TICS Gestión de Archivos de Texto</strong>
+                        </td>
+                        <td>Capacitación Tecnológica<br><span style="color: #64748b;">3er Semestre</span></td>
+                        <td>48 hrs totales<br><span style="color: #64748b;">(3 hrs semanales)</span></td>
+                        <td style="font-style: italic; color: #334155;">"Integra información digital mediante la creación de documentos electrónicos, empleando software de aplicación, como procesadores de textos y editor de imágenes de manera responsable y creativa en ámbitos laborales, escolares y de la vida cotidiana."</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Pie de Reporte Institucional -->
+            <div style="margin-top: 30px; border-top: 1px solid #cbd5e1; padding-top: 15px; display: flex; justify-content: space-between; align-items: flex-end; font-size: 10px; color: #64748b;">
+                <div>
+                    <p style="margin: 0; font-weight: 600;">Dirección General del Bachillerato • CEB 9/18</p>
+                    <p style="margin: 2px 0 0 0;">Documento impreso desde la Plataforma Académica Oficial.</p>
+                </div>
+                <div style="text-align: right;">
+                    <div style="border-top: 1px solid #94a3b8; width: 180px; text-align: center; padding-top: 4px; margin-bottom: 2px; font-weight: 700; color: #0f172a;">
+                        Dr. Adrian Cipriano Lara
+                    </div>
+                    <span>Firma Titular de Asignaturas</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center max-w-2xl mx-auto mb-10 space-y-3">
+            <span class="text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800/60">Marco Curricular DGB • Ciclo 2026-2027</span>
+            <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white">Plataforma de Asignaturas Activas</h2>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Selecciona tu asignatura para acceder a los contenidos programáticos actualizados conforme a los propósitos y contenidos formativos de la Dirección General del Bachillerato.</p>
+        </div>
+
+        <!-- Grid de Tarjetas de Asignaturas -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <!-- Asignatura 1: Pensamiento Matemático III -->
+            <a href="https://adrysystems.github.io/matematicas3" target="_blank" rel="noopener noreferrer" class="group bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-blue-500 rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between shadow-lg shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-blue-600/5 dark:bg-blue-600/10 rounded-full blur-2xl group-hover:bg-blue-600/15 transition"></div>
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-600/20 border border-blue-200 dark:border-blue-500/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/80 px-2.5 py-0.5 rounded border border-blue-200 dark:border-blue-800/50">Componente Fundamental • 3er Semestre</span>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mt-2 group-hover:text-blue-600 dark:group-hover:text-blue-300 transition">Pensamiento Matemático III</h3>
+                    <div class="mt-3">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-blue-500 dark:text-blue-400 block mb-1">Meta Educativa:</span>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 italic leading-relaxed bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800">"Aplique el lenguaje algebraico como herramienta para describir situaciones de la realidad y expresar relaciones matemáticas, y mediante procesos de intuición y razonamiento, logre explicar y resolver problemas."</p>
+                    </div>
+                </div>
+                <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs font-semibold text-blue-600 dark:text-blue-400 group-hover:translate-x-1 transition-transform">
+                    <span>Ver programa (64 hrs / 4 semanales)</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                </div>
+            </a>
+
+            <!-- Asignatura 2: TICS Hoja de Cálculo Aplicado -->
+            <a href="https://adrysystems.github.io/hojacalculo3" target="_blank" rel="noopener noreferrer" class="group bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between shadow-lg shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-emerald-600/5 dark:bg-emerald-600/10 rounded-full blur-2xl group-hover:bg-emerald-600/15 transition"></div>
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-600/20 border border-emerald-200 dark:border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-file-excel"></i>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/80 px-2.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800/50">Capacitación Tecnológica • 3er Semestre</span>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mt-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition">TICS Hoja de Cálculo Aplicado</h3>
+                    <div class="mt-3">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-500 dark:text-emerald-400 block mb-1">Meta Educativa:</span>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 italic leading-relaxed bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800">"Prepara información a través de la manipulación de datos y fórmulas, elaborando gráficos en una aplicación de hoja de cálculo, resolviendo de manera creativa e innovadora, situaciones en diversos ambientes y contextos."</p>
+                    </div>
+                </div>
+                <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs font-semibold text-emerald-600 dark:text-emerald-400 group-hover:translate-x-1 transition-transform">
+                    <span>Ver programa (64 hrs / 4 semanales)</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                </div>
+            </a>
+
+            <!-- Asignatura 3: TICS Gestión de Archivos de Texto -->
+            <a href="https://adrysystems.github.io/gestionarchivos3" target="_blank" rel="noopener noreferrer" class="group bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-amber-500 rounded-2xl p-6 transition-all duration-300 flex flex-col justify-between shadow-lg shadow-slate-200/50 dark:shadow-none relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-600/5 dark:bg-amber-600/10 rounded-full blur-2xl group-hover:bg-amber-600/15 transition"></div>
+                <div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-600/20 border border-amber-200 dark:border-amber-500/30 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-file-lines"></i>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/80 px-2.5 py-0.5 rounded border border-amber-200 dark:border-amber-800/50">Capacitación Tecnológica • 3er Semestre</span>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mt-2 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition">TICS Gestión de Archivos de Texto</h3>
+                    <div class="mt-3">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-500 dark:text-amber-400 block mb-1">Meta Educativa:</span>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 italic leading-relaxed bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-800">"Integra información digital mediante la creación de documentos electrónicos, empleando software de aplicación, como procesadores de textos y editor de imágenes de manera responsable y creativa en ámbitos laborales, escolares y de la vida cotidiana."</p>
+                    </div>
+                </div>
+                <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs font-semibold text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform">
+                    <span>Ver programa (48 hrs / 3 semanales)</span>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                </div>
+            </a>
+
+        </div>
+
+    </main>
+
+    <!-- Pie de Página Institucional -->
+    <footer class="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500">
+        <div class="flex items-center justify-center gap-2 font-medium text-slate-700 dark:text-slate-300">
+            <i class="fa-solid fa-graduation-cap text-blue-600 dark:text-blue-400"></i>
+            <span>Titular de las Asignaturas:</span>
+            <span class="font-bold text-slate-900 dark:text-white">Dr. Adrian Cipriano Lara</span>
+        </div>
+        <div class="mt-1">Portal Institucional Profesional • Rutas Académicas DGB Independientes</div>
+    </footer>
+
+    <!-- Lógica de JavaScript para el Toggle del Modo Oscuro / Claro -->
+    <script>
+        function updateThemeUI(isDark) {
+            const themeIcon = document.getElementById('theme-icon');
+            if (themeIcon) {
+                if (isDark) {
+                    themeIcon.className = 'fa-solid fa-moon text-blue-400 text-sm';
+                } else {
+                    themeIcon.className = 'fa-solid fa-sun text-amber-500 text-sm';
+                }
+            }
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                updateThemeUI(false);
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                updateThemeUI(true);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const html = document.documentElement;
+
+            if (savedTheme === 'dark') {
+                html.classList.add('dark');
+                updateThemeUI(true);
+            } else if (savedTheme === 'light') {
+                html.classList.remove('dark');
+                updateThemeUI(false);
+            } else {
+                // Por defecto en modo oscuro si no hay preferencia guardada
+                html.classList.add('dark');
+                updateThemeUI(true);
+            }
+        });
+    </script>
+</body>
+</html>
