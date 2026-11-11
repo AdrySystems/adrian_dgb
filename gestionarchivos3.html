@@ -1,0 +1,2063 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Archivos de Texto - Plataforma Interactiva DGB</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- KaTeX for math/technical syntax rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        html:not(.dark) .custom-scrollbar::-webkit-scrollbar-track {
+            background: #e2e8f0;
+        }
+        html:not(.dark) .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+
+        html.dark .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        html.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        .theme-toggle-btn {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 64px;
+            height: 32px;
+            border-radius: 9999px;
+            padding: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .theme-toggle-thumb {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        html.dark .theme-toggle-thumb {
+            transform: translateX(32px);
+            background-color: #1e293b;
+        }
+
+        .presentation-fullscreen {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 99999 !important;
+            background-color: #0f172a !important;
+            padding: 1.5rem !important;
+            overflow-y: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
+            border-radius: 0 !important;
+            border: none !important;
+        }
+
+        /* Ocultar la estructura de reporte en pantalla normal */
+        .print-only-report {
+            display: none;
+        }
+
+        /* Configuración de Impresión / PDF */
+        @media print {
+            @page {
+                size: letter landscape;
+                margin: 0mm;
+            }
+
+            .no-print, header, footer, main > *:not(.print-only-report) {
+                display: none !important;
+            }
+
+            body {
+                background-color: white !important;
+                color: #0f172a !important;
+                font-family: 'Inter', sans-serif !important;
+                padding: 1cm 1.5cm !important;
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            a[href]:after {
+                content: "" !important;
+            }
+
+            .print-only-report {
+                display: block !important;
+                width: 100% !important;
+            }
+
+            .report-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }
+
+            .report-table th {
+                background-color: #fff7ed !important;
+                color: #7c2d12 !important;
+                font-weight: 700;
+                text-transform: uppercase;
+                font-size: 9px;
+                letter-spacing: 0.05em;
+                padding: 8px;
+                border: 1px solid #fed7aa;
+                text-align: left;
+            }
+
+            .report-table td {
+                padding: 8px;
+                border: 1px solid #e2e8f0;
+                font-size: 10px;
+                vertical-align: top;
+            }
+
+            .report-list {
+                margin: 0;
+                padding-left: 14px;
+                list-style-type: disc;
+            }
+
+            .report-list li {
+                margin-bottom: 2px;
+                line-height: 1.3;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-white/90 dark:bg-slate-800/80 backdrop-blur border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-3 bg-amber-600 rounded-xl text-white shadow-lg shadow-amber-500/30">
+                    <i class="fa-solid font-bold text-2xl fa-file-lines"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        Gestión de Archivos de Texto
+                        <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30">3er Semestre DGB</span>
+                    </h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Procesamiento, organización, digitalización y edición profesional de documentos • 4 Horas/Semana</p>
+                </div>
+            </div>
+
+            <!-- Global Actions, Theme Switcher & Stats -->
+            <div class="flex flex-wrap items-center gap-3 text-xs">
+                <!-- Botones Imprimir y PDF -->
+                <div class="flex items-center gap-2 no-print">
+                    <button onclick="window.print()" class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 transition shadow-sm focus:outline-none" title="Imprimir programa">
+                        <i class="fa-solid fa-print text-slate-500 dark:text-slate-400"></i>
+                        <span>Imprimir</span>
+                    </button>
+                    
+                    <button onclick="window.print()" class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold rounded-xl bg-red-50 dark:bg-red-950/40 hover:bg-red-100 dark:hover:bg-red-900/60 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 transition shadow-sm focus:outline-none" title="Guardar como PDF">
+                        <i class="fa-solid fa-file-pdf text-red-500"></i>
+                        <span>Guardar PDF</span>
+                    </button>
+                </div>
+
+                <button id="theme-toggle" onclick="toggleTheme()" class="theme-toggle-btn bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 focus:outline-none no-print" title="Cambiar Tema (Claro / Oscuro)">
+                    <i class="fa-solid fa-sun text-amber-500 text-xs flex items-center justify-center w-5"></i>
+                    <i class="fa-solid fa-moon text-indigo-300 text-xs flex items-center justify-center w-5"></i>
+                    <div class="theme-toggle-thumb">
+                        <i id="theme-icon" class="fa-solid fa-sun text-amber-500 text-[10px]"></i>
+                    </div>
+                </button>
+
+                <!-- Badge del Profesor Titular -->
+                <div class="flex items-center gap-2 text-xs bg-slate-100 dark:bg-slate-900/60 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <i class="fa-solid fa-user-tie text-amber-600 dark:text-amber-400"></i>
+                    <span class="text-slate-500 dark:text-slate-400">Profesor:</span>
+                    <span class="font-bold text-slate-800 dark:text-white">Dr. Adrian Cipriano Lara</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 border-t border-slate-200 dark:border-slate-700/50 pt-2 overflow-x-auto custom-scrollbar no-print">
+            <div class="flex gap-1">
+                <button onclick="switchTab('tab-curriculum')" id="btn-tab-curriculum" class="tab-btn px-4 py-2.5 text-sm font-medium rounded-t-lg transition flex items-center gap-2 bg-amber-600 text-white shadow-sm">
+                    <i class="fa-solid fa-table"></i> Tabla Curricular
+                </button>
+                <button onclick="switchTab('tab-presentaciones')" id="btn-tab-presentaciones" class="tab-btn px-4 py-2.5 text-sm font-medium rounded-t-lg transition flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800">
+                    <i class="fa-solid fa-file-powerpoint text-amber-500"></i> Presentaciones de Clase
+                </button>
+                <button onclick="switchTab('tab-lab')" id="btn-tab-lab" class="tab-btn px-4 py-2.5 text-sm font-medium rounded-t-lg transition flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800">
+                    <i class="fa-solid fa-laptop-code"></i> Laboratorio Interactivo
+                </button>
+                <button onclick="switchTab('tab-quiz')" id="btn-tab-quiz" class="tab-btn px-4 py-2.5 text-sm font-medium rounded-t-lg transition flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800">
+                    <i class="fa-solid fa-pen-to-square"></i> Autoevaluación
+                </button>
+                <button onclick="switchTab('tab-ai')" id="btn-tab-ai" class="tab-btn px-4 py-2.5 text-sm font-medium rounded-t-lg transition flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800">
+                    <i class="fa-solid fa-robot text-amber-500 dark:text-amber-400"></i> Tutor IA
+                </button>
+            </div>
+
+            <div class="flex items-center gap-3 text-xs py-1">
+                <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-200/70 dark:bg-slate-900/60 border border-slate-300 dark:border-slate-700">
+                    <i class="fa-solid fa-list-check text-amber-600 dark:text-amber-400"></i>
+                    <span class="text-slate-500 dark:text-slate-400">Progreso:</span>
+                    <span id="global-progress-text" class="font-bold text-slate-900 dark:text-white">0 / 6</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- REPORTE EXCLUSIVO PARA IMPRESIÓN Y PDF (LANDSCAPE) -->
+        <div class="print-only-report">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ea580c; padding-bottom: 8px; margin-bottom: 12px;">
+                <div>
+                    <h1 style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 0;">PROGRAMA CURRICULAR • GESTIÓN DE ARCHIVOS DE TEXTO</h1>
+                    <p style="font-size: 10px; color: #475569; margin: 2px 0 0 0;">Centro de Estudios de Bachillerato 9/18 • Dirección General del Bachillerato (DGB)</p>
+                </div>
+                <div style="text-align: right; font-size: 9px; color: #64748b;">
+                    <p style="margin: 0;"><strong>Ciclo Escolar:</strong> 2026-2027</p>
+                    <p style="margin: 2px 0 0 0;"><strong>Profesor Titular:</strong> Dr. Adrian Cipriano Lara</p>
+                </div>
+            </div>
+
+            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; border-radius: 6px; font-size: 10px; margin-bottom: 10px; color: #334155;">
+                <strong>Meta Educativa:</strong> "Gestiona y procesa archivos de texto mediante el dominio de procesadores de palabras, técnicas de formato avanzado, organización de directorios y normativas documentales para producir información clara, estructurada y profesional."
+            </div>
+
+            <!-- Tabla de Impresión Horizontal con Viñetas -->
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">#</th>
+                        <th style="width: 40%;">Propósito Formativo</th>
+                        <th style="width: 55%;">Contenidos Formativos Programáticos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>1</strong></td>
+                        <td>Gestiona archivos de texto plano y enriquecido organizando directorios, extensiones y codificaciones adecuadas en el sistema operativo.</td>
+                        <td>
+                            <ul class="report-list">
+                                <li>Concepto de archivo de texto y sistemas de almacenamiento</li>
+                                <li>Diferencias entre texto plano (TXT) y procesadores de palabras</li>
+                                <li>Extensiones de archivos: TXT, RTF, DOCX, ODT</li>
+                                <li>Codificación de caracteres (UTF-8, ASCII, Unicode)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>2</strong></td>
+                        <td>Aplica técnicas de formato tipográfico, alineación, márgenes y párrafos para producir documentos académicos claros y legibles.</td>
+                        <td>
+                            <ul class="report-list">
+                                <li>Fuentes, tamaños, negritas, cursivas y subrayados</li>
+                                <li>Alineación de texto (izquierda, derecha, centrado, justificado)</li>
+                                <li>Interlineado, sangrías y espaciado entre párrafos</li>
+                                <li>Márgenes, orientación de página y saltos de sección</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>3</strong></td>
+                        <td>Inserta y personaliza tablas, imágenes, formas y objetos multimedia para complementar la presentación visual de la información.</td>
+                        <td>
+                            <ul class="report-list">
+                                <li>Inserción y diseño de tablas profesionales</li>
+                                <li>Alineación, ajuste de texto y formato de imágenes</li>
+                                <li>Uso de formas, cuadros de texto y SmartArt</li>
+                                <li>Encabezados, pies de página y numeración automática</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>4</strong></td>
+                        <td>Utiliza estilos predeterminados, tablas de contenido automáticas y normas bibliográficas para la redacción de informes formales.</td>
+                        <td>
+                            <ul class="report-list">
+                                <li>Creación y aplicación de estilos de título y subtítulo</li>
+                                <li>Generación automática de tablas de contenido (índices)</li>
+                                <li>Normas de citación y referencias bibliográficas (APA 7.ª Edición)</li>
+                                <li>Notas al pie y notas al final del documento</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>5</strong></td>
+                        <td>Emplea herramientas avanzadas de automatización como combinación de correspondencia y macros para el manejo masivo de documentos.</td>
+                        <td>
+                            <ul class="report-list">
+                                <li>Concepto y utilidad de la combinación de correspondencia (Mail Merge)</li>
+                                <li>Vinculación de bases de datos o listas de contactos</li>
+                                <li>Generación automatizada de cartas y constancias personalizadas</li>
+                                <li>Introducción a la grabación y ejecución de macros básicas</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>6</strong></td>
+                        <td>Revisa mecanismos de seguridad, protección con contraseña, control de cambios y colaboración en línea en la gestión documental.</td>
+                        <td>
+                            <ul class="report-list">
+                                <li>Cifrado de documentos y protección con contraseña</li>
+                                <li>Control de cambios y revisión colaborativa</li>
+                                <li>Firmas digitales y verificación de integridad</li>
+                                <li>Almacenamiento en la nube y trabajo compartido</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="margin-top: 20px; border-top: 1px solid #cbd5e1; padding-top: 10px; display: flex; justify-content: space-between; align-items: flex-end; font-size: 9px; color: #64748b;">
+                <div>
+                    <p style="margin: 0; font-weight: 600;">Dirección General del Bachillerato • CEB 9/18</p>
+                    <p style="margin: 2px 0 0 0;">Documento oficial generado desde la plataforma académica.</p>
+                </div>
+                <div style="text-align: right;">
+                    <div style="border-top: 1px solid #94a3b8; width: 160px; text-align: center; padding-top: 2px; margin-bottom: 2px; font-weight: 700; color: #0f172a;">
+                        Dr. Adrian Cipriano Lara
+                    </div>
+                    <span>Firma Titular de Asignatura</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Educational Meta Banner -->
+        <div class="mb-6 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 dark:from-slate-800 dark:via-amber-950/40 dark:to-slate-800 border border-amber-200 dark:border-amber-500/20 rounded-2xl p-4 sm:p-6 shadow-sm dark:shadow-xl relative overflow-hidden transition-colors duration-300">
+            <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="flex items-start gap-4">
+                <div class="p-3 bg-amber-100 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-500/30 text-amber-600 dark:text-amber-400 rounded-xl mt-1 hidden sm:block">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Meta Educativa del Curso DGB</span>
+                    <p class="text-slate-700 dark:text-slate-200 text-sm sm:text-base mt-1 font-medium leading-relaxed">
+                        "Gestiona y procesa archivos de texto mediante el dominio de procesadores de palabras, técnicas de formato avanzado, organización de directorios y normativas documentales para producir información clara, estructurada y profesional."
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 1: CURRICULUM TABLE -->
+        <section id="tab-curriculum" class="tab-content space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 bg-white dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm transition-colors duration-300">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="table-search" oninput="filterCurriculumTable()" placeholder="Buscar por propósito o contenido formativo..." class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-amber-500 transition">
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap"><i class="fa-solid fa-filter"></i> Filtrar:</span>
+                    <select id="status-filter" onchange="filterCurriculumTable()" class="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-amber-500">
+                        <option value="all">Todos los propósitos</option>
+                        <option value="pending">Pendientes</option>
+                        <option value="completed">Completados</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl overflow-hidden transition-colors duration-300">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 text-xs uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
+                                <th class="py-4 px-4 sm:px-6 w-16 text-center">#</th>
+                                <th class="py-4 px-4 sm:px-6 w-5/12">Propósito Formativo</th>
+                                <th class="py-4 px-4 sm:px-6 w-5/12">Contenidos Formativos</th>
+                                <th class="py-4 px-4 sm:px-6 w-32 text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="curriculum-table-body" class="divide-y divide-slate-200 dark:divide-slate-700/60 text-sm">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: PRESENTACIONES PROFESIONALES DE CLASE -->
+        <section id="tab-presentaciones" class="tab-content hidden space-y-6">
+            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-amber-950 text-white rounded-2xl p-6 shadow-xl border border-slate-700 relative overflow-hidden">
+                <div class="absolute right-0 top-0 bottom-0 w-1/3 bg-amber-600/10 blur-3xl pointer-events-none"></div>
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative z-10">
+                    <div>
+                        <div class="flex items-center gap-2 text-amber-400 font-semibold text-xs tracking-wider uppercase mb-1">
+                            <i class="fa-solid fa-award"></i> Recursos del profesor
+                        </div>
+                        <h2 class="text-2xl font-bold tracking-tight">Presentaciones de Clases Interactivas</h2>
+                        <p class="text-xs text-slate-300 mt-1 max-w-2xl">
+                            Contenido didáctico para la asignatura de Gestión de Archivos de Texto (3.º Semestre).
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="toggleFullscreenPresentation()" id="btn-fullscreen-pres" class="px-3 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold transition flex items-center gap-2 shadow-lg shadow-amber-600/30">
+                            <i class="fa-solid fa-expand" id="fullscreen-icon"></i>
+                            <span id="fullscreen-text">Pantalla Completa</span>
+                        </button>
+                        <span class="px-3 py-2 rounded-xl bg-slate-800/80 border border-slate-600 text-xs text-slate-200 font-medium flex items-center gap-2">
+                            <i class="fa-solid fa-user-tie text-amber-400"></i> Dr. Adrian Cipriano Lara
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                <button onclick="selectPresentationUnit(1)" id="pres-nav-1" class="pres-nav-btn p-3 rounded-xl border text-left transition flex flex-col justify-between h-20 bg-amber-600 text-white border-amber-500 shadow-md">
+                    <span class="text-[10px] uppercase font-bold text-amber-200">Bloque 01</span>
+                    <span class="text-xs font-semibold leading-tight line-clamp-2">Entorno y Archivos TXT</span>
+                </button>
+                <button onclick="selectPresentationUnit(2)" id="pres-nav-2" class="pres-nav-btn p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-400 text-left transition flex flex-col justify-between h-20">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Bloque 02</span>
+                    <span class="text-xs font-semibold leading-tight line-clamp-2">Edición y Formato</span>
+                </button>
+                <button onclick="selectPresentationUnit(3)" id="pres-nav-3" class="pres-nav-btn p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-400 text-left transition flex flex-col justify-between h-20">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Bloque 03</span>
+                    <span class="text-xs font-semibold leading-tight line-clamp-2">Tablas, Imágenes & Objetos</span>
+                </button>
+                <button onclick="selectPresentationUnit(4)" id="pres-nav-4" class="pres-nav-btn p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-400 text-left transition flex flex-col justify-between h-20">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Bloque 04</span>
+                    <span class="text-xs font-semibold leading-tight line-clamp-2">Estilos y Referencias</span>
+                </button>
+                <button onclick="selectPresentationUnit(5)" id="pres-nav-5" class="pres-nav-btn p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-400 text-left transition flex flex-col justify-between h-20">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Bloque 05</span>
+                    <span class="text-xs font-semibold leading-tight line-clamp-2">Documentos Masivos (Mail Merge)</span>
+                </button>
+                <button onclick="selectPresentationUnit(6)" id="pres-nav-6" class="pres-nav-btn p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-400 text-left transition flex flex-col justify-between h-20">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Bloque 06</span>
+                    <span class="text-xs font-semibold leading-tight line-clamp-2">Colaboración y Seguridad</span>
+                </button>
+            </div>
+
+            <div id="presentation-deck-box" class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl overflow-hidden transition-all duration-300">
+                <div class="bg-slate-100 dark:bg-slate-900/90 px-6 py-4 border-b border-slate-200 dark:border-slate-700/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span id="pres-unit-badge" class="px-2.5 py-0.5 rounded bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 text-[11px] font-bold uppercase border border-amber-200 dark:border-amber-700">BLOQUE 01</span>
+                            <h3 id="pres-class-title" class="text-base font-bold text-slate-900 dark:text-white">Fundamentos de Archivos de Texto y Sistemas Operativos</h3>
+                        </div>
+                        <p id="pres-class-subtitle" class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Estructura de archivos, extensiones TXT, RTF, DOCX y directorios</p>
+                    </div>
+
+                    <div class="flex items-center gap-2 self-end sm:self-auto">
+                        <button onclick="prevSlide()" id="btn-prev-slide" class="px-3 py-1.5 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed">
+                            <i class="fa-solid fa-chevron-left"></i> Anterior
+                        </button>
+                        <span id="pres-slide-indicator" class="text-xs font-bold px-3 py-1.5 bg-white dark:bg-slate-800 rounded-md border border-slate-300 dark:border-slate-600 text-slate-800 dark:text-slate-200 shadow-sm">
+                            Diapositiva 1 / 4
+                        </span>
+                        <button onclick="nextSlide()" id="btn-next-slide" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold transition disabled:opacity-40 disabled:cursor-not-allowed shadow-md shadow-amber-500/20">
+                            Siguiente <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-6 sm:p-8 min-h-[440px] bg-slate-50/50 dark:bg-slate-850/40 flex flex-col justify-between" id="slide-content-area">
+                </div>
+
+                <div class="bg-slate-100/90 dark:bg-slate-900/90 p-4 border-t border-slate-200 dark:border-slate-700/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+                    <div class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                        <i class="fa-solid fa-lightbulb text-amber-500 text-base"></i>
+                        <span class="font-semibold text-slate-800 dark:text-slate-200">Nota Didáctica:</span>
+                        <span id="pres-speaker-note" class="text-slate-600 dark:text-slate-400 italic">Explicar la diferencia entre texto plano y formato enriquecido en los sistemas operativos modernos.</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[11px] text-slate-400 dark:text-slate-500 font-medium">Contenido oficial DGB • Gestión de Archivos de Texto</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: INTERACTIVE LAB -->
+        <section id="tab-lab" class="tab-content hidden space-y-6">
+            <div class="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                <button onclick="switchLabUnit(1)" id="lab-btn-1" class="unit-lab-btn bg-amber-600 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-2 shadow-sm">
+                    <span>B1</span> Editor TXT y Extensiones
+                </button>
+                <button onclick="switchLabUnit(2)" id="lab-btn-2" class="unit-lab-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-2">
+                    <span>B2</span> Procesador y Formato
+                </button>
+                <button onclick="switchLabUnit(3)" id="lab-btn-3" class="unit-lab-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-2">
+                    <span>B3</span> Inserción de Tablas & Objetos
+                </button>
+                <button onclick="switchLabUnit(4)" id="lab-btn-4" class="unit-lab-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-2">
+                    <span>B4</span> Estilos y Normas APA
+                </button>
+                <button onclick="switchLabUnit(5)" id="lab-btn-5" class="unit-lab-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-2">
+                    <span>B5</span> Combinación de Correspondencia
+                </button>
+                <button onclick="switchLabUnit(6)" id="lab-btn-6" class="unit-lab-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-2">
+                    <span>B6</span> Seguridad y Control de Cambios
+                </button>
+            </div>
+
+            <!-- UNIT 1 LAB: TEXT FILE ANALYZER & CONVERTER -->
+            <div id="unit-lab-1" class="unit-lab-view bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl space-y-6 transition-colors duration-300">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-file-code text-amber-600 dark:text-amber-400"></i> Simulador y Analizador de Archivos de Texto (TXT/RTF)
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Escribe o pega texto para analizar en tiempo real sus caracteres, palabras, párrafos y codificación de almacenamiento.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
+                        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Configuración del Archivo</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs text-slate-500 dark:text-slate-400">Nombre del Archivo:</label>
+                                <input type="text" id="lab1-filename" value="documento_escolar_dgb.txt" oninput="analyzeTextFile()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-slate-900 dark:text-white text-xs focus:outline-none focus:border-amber-500">
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-500 dark:text-slate-400">Codificación (Encoding):</label>
+                                <select id="lab1-encoding" onchange="analyzeTextFile()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-slate-900 dark:text-white text-xs focus:outline-none focus:border-amber-500">
+                                    <option value="UTF-8">UTF-8 (Estándar Universal)</option>
+                                    <option value="ASCII">ASCII (7-bit básico)</option>
+                                    <option value="ISO-8859-1">Latin-1 (ISO-8859-1)</option>
+                                    <option value="UTF-16">UTF-16 (Unicode extendido)</option>
+                                </select>
+                            </div>
+                            <button onclick="loadSampleText()" class="w-full py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs text-slate-800 dark:text-slate-200 transition flex items-center justify-center gap-2 font-medium">
+                                <i class="fa-solid fa-book-open"></i> Cargar Texto de Prueba DGB
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2 bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4 flex flex-col">
+                        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Editor de Texto Plano y Estadísticas</h3>
+                        <textarea id="lab1-textarea" oninput="analyzeTextFile()" rows="6" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-3 text-xs text-slate-800 dark:text-slate-200 focus:outline-none focus:border-amber-500 font-mono">La asignatura de Gestión de Archivos de Texto forma parte fundamental del plan de estudios del Bachillerato General. Permite al estudiante dominar herramientas ofimáticas y procesadores para la elaboración de reportes académicos con calidad profesional.</textarea>
+                        
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                            <div class="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 text-center">
+                                <span class="text-[10px] text-slate-400 block uppercase">Palabras</span>
+                                <span id="stat-words" class="text-base font-bold text-amber-600 dark:text-amber-400">0</span>
+                            </div>
+                            <div class="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 text-center">
+                                <span class="text-[10px] text-slate-400 block uppercase">Caracteres</span>
+                                <span id="stat-chars" class="text-base font-bold text-amber-600 dark:text-amber-400">0</span>
+                            </div>
+                            <div class="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 text-center">
+                                <span class="text-[10px] text-slate-400 block uppercase">Párrafos</span>
+                                <span id="stat-paragraphs" class="text-base font-bold text-amber-600 dark:text-amber-400">0</span>
+                            </div>
+                            <div class="bg-white dark:bg-slate-800 p-3 rounded-lg border border-slate-200 dark:border-slate-700 text-center">
+                                <span class="text-[10px] text-slate-400 block uppercase">Tamaño Est.</span>
+                                <span id="stat-size" class="text-base font-bold text-amber-600 dark:text-amber-400">0 bytes</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UNIT 2 LAB: FORMATTING & TYPOGRAPHY SIMULATOR -->
+            <div id="unit-lab-2" class="unit-lab-view hidden bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl space-y-6 transition-colors duration-300">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-font text-amber-600 dark:text-amber-400"></i> Simulador de Formato y Estilos Tipográficos en Procesadores
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Modifica tipografías, alineación, interlineado y márgenes para visualizar cómo impactan en la legibilidad del documento.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4 text-xs">
+                        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Controles de Formato</h3>
+                        
+                        <div>
+                            <label class="text-slate-500 dark:text-slate-400">Familia Tipográfica:</label>
+                            <select id="lab2-font" onchange="updateDocumentPreview()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-slate-900 dark:text-white">
+                                <option value="'Inter', sans-serif">Inter (Moderna / Sans-Serif)</option>
+                                <option value="'Times New Roman', serif">Times New Roman (Académica / Serif)</option>
+                                <option value="'Courier New', monospace">Courier New (Monospaced / Código)</option>
+                                <option value="'Georgia', serif">Georgia (Editorial)</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400">Tamaño Fuente:</label>
+                                <select id="lab2-size" onchange="updateDocumentPreview()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-slate-900 dark:text-white">
+                                    <option value="12px">12 px (Compacto)</option>
+                                    <option value="14px" selected>14 px (Estándar DGB)</option>
+                                    <option value="16px">16 px (Lectura cómoda)</option>
+                                    <option value="18px">18 px (Destacado)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400">Interlineado:</label>
+                                <select id="lab2-lineheight" onchange="updateDocumentPreview()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-2 text-slate-900 dark:text-white">
+                                    <option value="1.15">1.15 (Compacto)</option>
+                                    <option value="1.5" selected>1.5 (Norma Académica)</option>
+                                    <option value="2.0">2.0 (Doble espacio)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-slate-500 dark:text-slate-400">Alineación del Párrafo:</label>
+                            <div class="flex gap-1 mt-1">
+                                <button onclick="setAlign('left')" class="flex-1 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded hover:bg-slate-100 font-semibold"><i class="fa-solid fa-align-left"></i></button>
+                                <button onclick="setAlign('center')" class="flex-1 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded hover:bg-slate-100 font-semibold"><i class="fa-solid fa-align-center"></i></button>
+                                <button onclick="setAlign('right')" class="flex-1 py-1.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded hover:bg-slate-100 font-semibold"><i class="fa-solid fa-align-right"></i></button>
+                                <button onclick="setAlign('justify')" class="flex-1 py-1.5 bg-amber-600 text-white border border-amber-500 rounded font-semibold" id="align-justify-btn"><i class="fa-solid fa-align-justify"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-slate-50 dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-center">
+                        <div class="text-[11px] text-slate-400 uppercase font-bold mb-2">Vista Previa del Documento Ofimático</div>
+                        <div id="document-preview-box" class="bg-white dark:bg-slate-950 p-6 rounded-lg border border-slate-300 dark:border-slate-800 shadow-sm transition-all duration-300 text-slate-800 dark:text-slate-200 space-y-3">
+                            <h4 class="font-bold text-amber-600 dark:text-amber-400 text-base">Informe Académico sobre Gestión de Archivos</h4>
+                            <p id="preview-paragraph">El procesamiento eficaz de textos requiere estructurar adecuadamente los encabezados, aplicar márgenes uniformes y mantener una tipografía legible. En el ámbito del Bachillerato General, el dominio de estas herramientas garantiza la presentación de trabajos con rigor metodológico y excelente calidad visual.</p>
+                            <p class="text-[11px] text-slate-400 italic">Elaborado para la materia de Gestión de Archivos de Texto • 3er Semestre.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UNIT 3 LAB: TABLES & OBJECTS GENERATOR -->
+            <div id="unit-lab-3" class="unit-lab-view hidden bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl space-y-6 transition-colors duration-300">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-table text-amber-600 dark:text-amber-400"></i> Generador y Estilizador de Tablas y Elementos Gráficos
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Configura filas, columnas y diseño de tablas para organizar datos en tus documentos de texto.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4 text-xs">
+                        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Parámetros de la Tabla</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400">Filas:</label>
+                                <input type="number" id="table-rows" value="3" min="1" max="6" oninput="renderInteractiveTable()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                            </div>
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400">Columnas:</label>
+                                <input type="number" id="table-cols" value="3" min="1" max="5" oninput="renderInteractiveTable()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-slate-500 dark:text-slate-400">Estilo de Tabla:</label>
+                            <select id="table-style" onchange="renderInteractiveTable()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                                <option value="amber">Naranja Académico</option>
+                                <option value="modern">Moderna Minimalista</option>
+                                <option value="striped">Filas Alternadas (Zebra)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-center overflow-x-auto">
+                        <div id="table-container" class="w-full"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UNIT 4 LAB: APA STYLES & CITATIONS -->
+            <div id="unit-lab-4" class="unit-lab-view hidden bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl space-y-6 transition-colors duration-300">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-book-bookmark text-amber-600 dark:text-amber-400"></i> Generador de Citas y Referencias Bibliográficas (Normas APA 7.ª Ed.)
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Introduce los datos de una fuente documental para generar automáticamente su cita en el texto y su referencia bibliográfica.</p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 text-xs">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Datos de la Fuente</h3>
+                        <div>
+                            <label class="text-slate-500 dark:text-slate-400">Tipo de Fuente:</label>
+                            <select id="apa-type" onchange="generateApaReference()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                                <option value="book">Libro impreso o digital</option>
+                                <option value="article">Artículo de revista científica</option>
+                                <option value="web">Página web institucional</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-slate-500 dark:text-slate-400">Autor(es) (Apellido, Inicial):</label>
+                            <input type="text" id="apa-author" value="Pérez Gómez, A." oninput="generateApaReference()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="text-slate-500 dark:text-slate-400">Año de Publicación:</label>
+                            <input type="text" id="apa-year" value="2023" oninput="generateApaReference()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="text-slate-500 dark:text-slate-400">Título de la Obra:</label>
+                            <input type="text" id="apa-title" value="Procesamiento y Gestión de Textos Digitales" oninput="generateApaReference()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="text-slate-500 dark:text-slate-400">Editorial / Fuente:</label>
+                            <input type="text" id="apa-publisher" value="Editorial DGB México" oninput="generateApaReference()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4 flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Resultado Formato APA 7.ª Edición</h3>
+                            
+                            <div class="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 space-y-1">
+                                <span class="font-bold text-amber-600 dark:text-amber-400 block">Cita en el Texto (Parentética):</span>
+                                <div id="apa-intext" class="font-mono text-slate-800 dark:text-slate-200">(Pérez Gómez, 2023)</div>
+                            </div>
+
+                            <div class="p-3 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 space-y-1">
+                                <span class="font-bold text-amber-600 dark:text-amber-400 block">Referencia Bibliográfica Final:</span>
+                                <div id="apa-reference" class="font-serif italic text-slate-800 dark:text-slate-200">Pérez Gómez, A. (2023). <i>Procesamiento y Gestión de Textos Digitales</i>. Editorial DGB México.</div>
+                            </div>
+                        </div>
+
+                        <div class="text-[11px] text-slate-400 italic text-center">
+                            Las normas APA estandarizan la presentación de trabajos académicos en todo el sistema DGB.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UNIT 5 LAB: MAIL MERGE SIMULATOR -->
+            <div id="unit-lab-5" class="unit-lab-view hidden bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl space-y-6 transition-colors duration-300">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-envelope-open-text text-amber-600 dark:text-amber-400"></i> Simulador de Combinación de Correspondencia (Mail Merge)
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Automatiza la creación de constancias o cartas personalizadas vinculando una plantilla con una base de datos de destinatarios.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">1. Plantilla del Documento</h3>
+                        <textarea id="mail-template" rows="4" oninput="runMailMerge()" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-800 dark:text-slate-200 font-mono">Estimado/a [NOMBRE]:
+Por medio de la presente se le notifica que ha acreditado satisfactoriamente el curso de Gestión de Archivos de Texto con calificación de [CALIFICACION]. Atentamente, Plantel DGB.</textarea>
+                        
+                        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 pt-2">2. Seleccionar Destinatario</h3>
+                        <select id="recipient-select" onchange="runMailMerge()" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                            <option value="0">Estudiante 1: María Fernanda López (9.5)</option>
+                            <option value="1">Estudiante 2: Carlos Alberto Ramírez (10.0)</option>
+                            <option value="2">Estudiante 3: Sofía Guadalupe Hernández (8.8)</option>
+                        </select>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">3. Vista Previa del Documento Generado</h3>
+                            <div id="mail-output" class="p-4 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 whitespace-pre-line leading-relaxed"></div>
+                        </div>
+                        <div class="text-[11px] text-slate-400 italic text-center">
+                            Permite generar cientos de constancias idénticas personalizando los campos en segundos.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UNIT 6 LAB: SECURITY & VERSIONING -->
+            <div id="unit-lab-6" class="unit-lab-view hidden bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl space-y-6 transition-colors duration-300">
+                <div class="border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-amber-600 dark:text-amber-400"></i> Seguridad, Cifrado y Control de Cambios en Documentos
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Protege documentos con contraseña y simula el registro de modificaciones colaborativas.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
+                        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Cifrado de Documentos (Password Protection)</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-slate-500 dark:text-slate-400">Contraseña de Apertura:</label>
+                                <input type="password" id="doc-password" value="DGB2026*" oninput="simulateEncryption()" class="w-full mt-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded p-2 text-slate-900 dark:text-white">
+                            </div>
+                            <div id="encryption-status" class="p-3 bg-amber-100 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-500/30 rounded-lg text-amber-800 dark:text-amber-300 font-semibold">
+                                <i class="fa-solid fa-lock"></i> Documento cifrado con AES-256 bits (Seguro)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
+                        <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Control de Cambios y Firmas Digitales</h3>
+                        <div class="space-y-2">
+                            <div class="p-2.5 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                                <div>
+                                    <span class="font-bold block text-slate-800 dark:text-slate-200">Revisión de Dr. Adrian Cipriano Lara</span>
+                                    <span class="text-[10px] text-slate-400">Se modificaron márgenes y referencias APA.</span>
+                                </div>
+                                <span class="px-2 py-1 bg-amber-100 text-amber-700 text-[10px] rounded font-semibold">Aceptado</span>
+                            </div>
+                            <div class="p-2.5 bg-white dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                                <div>
+                                    <span class="font-bold block text-slate-800 dark:text-slate-200">Firma Digital Hash SHA-256</span>
+                                    <span class="text-[10px] text-slate-400 font-mono">e3b0c44298fc1c149afbf4c8996fb924</span>
+                                </div>
+                                <span class="px-2 py-1 bg-orange-100 text-orange-700 text-[10px] rounded font-semibold">Verificado</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: QUIZ / AUTOEVALUACIÓN -->
+        <section id="tab-quiz" class="tab-content hidden space-y-6">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl space-y-6 max-w-3xl mx-auto transition-colors duration-300">
+                <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-700 pb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Autoevaluación de Diagnóstico y Formativa</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Pone a prueba tus aprendizajes en los 6 bloques formativos de la asignatura.</p>
+                    </div>
+                    <div class="bg-slate-100 dark:bg-slate-900 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-center">
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400 block uppercase font-bold">Puntaje</span>
+                        <span id="quiz-score" class="text-lg font-bold text-amber-600 dark:text-amber-400">0 / 6</span>
+                    </div>
+                </div>
+
+                <div id="quiz-container" class="space-y-6">
+                </div>
+
+                <div class="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                    <button onclick="resetQuiz()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600 text-xs font-semibold rounded-lg text-slate-800 dark:text-slate-200 transition">
+                        <i class="fa-solid fa-arrow-rotate-left"></i> Reiniciar Autoevaluación
+                    </button>
+                    <span id="quiz-feedback-banner" class="text-xs font-semibold text-slate-500 dark:text-slate-400"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: AI TUTOR -->
+        <section id="tab-ai" class="tab-content hidden space-y-6">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-xl overflow-hidden flex flex-col h-[600px] max-w-4xl mx-auto transition-colors duration-300">
+                <div class="bg-slate-100/90 dark:bg-slate-900/90 p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-600/30 border border-amber-300 dark:border-amber-500/50 flex items-center justify-center text-amber-600 dark:text-amber-400 text-lg">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-sm font-bold text-slate-900 dark:text-white">Tutor IA - Gestión de Archivos de Texto</h2>
+                            <p class="text-[10px] text-amber-600 dark:text-amber-300">Asistente Inteligente de Aprendizaje DGB</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-300 dark:border-amber-500/30 px-2.5 py-1 rounded-full flex items-center gap-1.5 font-medium">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 dark:bg-amber-400 animate-pulse"></span> En línea
+                        </span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 dark:bg-slate-850 p-3 border-b border-slate-200 dark:border-slate-700/60 flex gap-2 overflow-x-auto text-xs custom-scrollbar">
+                    <span class="text-slate-500 dark:text-slate-400 whitespace-nowrap self-center font-medium">Sugerencias:</span>
+                    <button onclick="sendSuggestedPrompt('¿Cuál es la diferencia entre formato TXT y RTF en un sistema operativo?')" class="bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-full whitespace-nowrap transition shadow-sm">
+                        📌 TXT vs RTF
+                    </button>
+                    <button onclick="sendSuggestedPrompt('¿Cómo se estructuran correctamente las referencias bibliográficas según las Normas APA 7.ª edición?')" class="bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-full whitespace-nowrap transition shadow-sm">
+                        📌 Normas APA 7.ª Ed.
+                    </button>
+                    <button onclick="sendSuggestedPrompt('¿Qué pasos debo seguir para realizar una combinación de correspondencia (Mail Merge) exitosa?')" class="bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-full whitespace-nowrap transition shadow-sm">
+                        📌 Combinación de Correspondencia
+                    </button>
+                    <button onclick="sendSuggestedPrompt('¿Cómo puedo proteger un archivo de texto con contraseña contra modificaciones no autorizadas?')" class="bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-full whitespace-nowrap transition shadow-sm">
+                        📌 Seguridad y Cifrado
+                    </button>
+                </div>
+
+                <div id="ai-chat-history" class="flex-1 p-4 overflow-y-auto space-y-4 custom-scrollbar bg-slate-50/50 dark:bg-slate-900/40">
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-600/30 border border-amber-200 dark:border-amber-500/40 flex items-center justify-center text-amber-600 dark:text-amber-400 text-sm">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl rounded-tl-none border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-slate-200 max-w-[85%] leading-relaxed shadow-sm">
+                            ¡Hola! Soy tu tutor interactivo de <strong>Gestión de Archivos de Texto</strong>. Puedo explicarte el manejo de procesadores de palabras, normas APA, combinación de correspondencia y organización de documentos. ¿En qué tema quieres profundizar hoy?
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 flex gap-2">
+                    <input type="text" id="ai-user-input" onkeypress="handleAiKeyPress(event)" placeholder="Haz una pregunta sobre gestión de archivos a la IA..." class="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-amber-500">
+                    <button onclick="sendAiMessage()" id="ai-send-btn" class="bg-amber-600 hover:bg-amber-500 text-white px-5 py-2.5 rounded-xl font-semibold text-xs sm:text-sm transition flex items-center gap-2 shadow-md">
+                        <span>Enviar</span> <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors duration-300 space-y-2">
+        <div class="flex items-center justify-center gap-2 font-medium text-slate-700 dark:text-slate-300">
+            <i class="fa-solid fa-graduation-cap text-amber-600 dark:text-amber-400"></i>
+            <span>Titular de la Asignatura:</span>
+            <span class="font-bold text-slate-900 dark:text-white tracking-wide">Dr. Adrian Cipriano Lara</span>
+        </div>
+        <div>Gestión de Archivos de Texto • Bachillerato General (DGB) • Plataforma Interactiva</div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // State
+        let isDarkMode = false; // Default: Light mode
+
+        const curriculumData = [
+            {
+                id: 1,
+                proposito: "Gestiona archivos de texto plano y enriquecido organizando directorios, extensiones y codificaciones adecuadas en el sistema operativo.",
+                contenidos: [
+                    "Concepto de archivo de texto y sistemas de almacenamiento",
+                    "Diferencias entre texto plano (TXT) y procesadores de palabras",
+                    "Extensiones de archivos: TXT, RTF, DOCX, ODT",
+                    "Codificación de caracteres (UTF-8, ASCII, Unicode)"
+                ],
+                completed: false
+            },
+            {
+                id: 2,
+                proposito: "Aplica técnicas de formato tipográfico, alineación, márgenes y párrafos para producir documentos académicos claros y legibles.",
+                contenidos: [
+                    "Fuentes, tamaños, negritas, cursivas y subrayados",
+                    "Alineación de texto (izquierda, derecha, centrado, justificado)",
+                    "Interlineado, sangrías y espaciado entre párrafos",
+                    "Márgenes, orientación de página y saltos de sección"
+                ],
+                completed: false
+            },
+            {
+                id: 3,
+                proposito: "Inserta y personaliza tablas, imágenes, formas y objetos multimedia para complementar la presentación visual de la información.",
+                contenidos: [
+                    "Inserción y diseño de tablas profesionales",
+                    "Alineación, ajuste de texto y formato de imágenes",
+                    "Uso de formas, cuadros de texto y SmartArt",
+                    "Encabezados, pies de página y numeración automática"
+                ],
+                completed: false
+            },
+            {
+                id: 4,
+                proposito: "Utiliza estilos predeterminados, tablas de contenido automáticas y normas bibliográficas para la redacción de informes formales.",
+                contenidos: [
+                    "Creación y aplicación de estilos de título y subtítulo",
+                    "Generación automática de tablas de contenido (índices)",
+                    "Normas de citación y referencias bibliográficas (APA 7.ª Edición)",
+                    "Notas al pie y notas al final del documento"
+                ],
+                completed: false
+            },
+            {
+                id: 5,
+                proposito: "Emplea herramientas avanzadas de automatización como combinación de correspondencia y macros para el manejo masivo de documentos.",
+                contenidos: [
+                    "Concepto y utilidad de la combinación de correspondencia (Mail Merge)",
+                    "Vinculación de bases de datos o listas de contactos",
+                    "Generación automatizada de cartas y constancias personalizadas",
+                    "Introducción a la grabación y ejecución de macros básicas"
+                ],
+                completed: false
+            },
+            {
+                id: 6,
+                proposito: "Revisa mecanismos de seguridad, protección con contraseña, control de cambios y colaboración en línea en la gestión documental.",
+                contenidos: [
+                    "Cifrado de documentos y protección con contraseña",
+                    "Control de cambios y revisión colaborativa",
+                    "Firmas digitales y verificación de integridad",
+                    "Almacenamiento en la nube y trabajo compartido"
+                ],
+                completed: false
+            }
+        ];
+
+        const presentationsData = [
+            {
+                unitId: 1,
+                badge: "Bloque 01",
+                title: "Fundamentos de Archivos de Texto y Sistemas Operativos",
+                subtitle: "Estructura de archivos, extensiones TXT, RTF, DOCX y directorios",
+                speakerNote: "Explicar la diferencia entre texto plano y formato enriquecido en los sistemas operativos modernos.",
+                slides: [
+                    {
+                        tag: "1. Concepto Fundamental",
+                        heading: "¿Qué es un Archivo de Texto y cómo se Almacena?",
+                        htmlVisual: `
+                            <div class="bg-amber-50/80 dark:bg-slate-900/80 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-around gap-4 my-2">
+                                <div class="text-center sm:text-left">
+                                    <span class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider block">Estructura Digital</span>
+                                    <div class="text-lg font-bold text-slate-800 dark:text-slate-100 mt-1">
+                                        <span class="px-3 py-1 bg-amber-100 dark:bg-amber-900/60 rounded-lg text-amber-800 dark:text-amber-300">archivo.txt</span>
+                                        <span class="mx-2 text-amber-600 dark:text-amber-400 font-extrabold text-2xl">→</span>
+                                        <span class="px-3 py-1 bg-orange-100 dark:bg-orange-900/60 rounded-lg text-orange-800 dark:text-orange-300">Bits / Bytes</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Cada carácter se representa mediante tablas de codificación estándar como ASCII o UTF-8.</p>
+                                </div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Definición:</strong> Un archivo de texto es un tipo de archivo informático estructurado como una secuencia de líneas de texto electrónico.",
+                            "<strong>Texto Plano (TXT):</strong> Contiene únicamente caracteres legibles sin formato tipográfico ni negritas.",
+                            "<strong>Texto Enriquecido (RTF / DOCX):</strong> Incluye además metadatos sobre fuentes, tamaños, colores y márgenes."
+                        ],
+                        boxTitle: "Codificación Universal",
+                        boxContent: "$$\\text{UTF-8 / ASCII} \\implies \\text{Representación estándar de caracteres globales}$$"
+                    },
+                    {
+                        tag: "2. Extensiones Comunes",
+                        heading: "Identificación de Extensiones Ofimáticas",
+                        htmlVisual: `
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs my-2">
+                                <div class="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 p-2.5 rounded-xl">
+                                    <i class="fa-solid fa-file-lines text-amber-600 dark:text-amber-400 text-lg mb-1 block"></i>
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">.TXT</span>
+                                    <span class="block text-[10px] text-amber-700 dark:text-amber-400 mt-0.5">Texto plano</span>
+                                </div>
+                                <div class="bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 p-2.5 rounded-xl">
+                                    <i class="fa-solid fa-file-word text-orange-600 dark:text-orange-400 text-lg mb-1 block"></i>
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">.DOCX</span>
+                                    <span class="block text-[10px] text-orange-700 dark:text-orange-400 mt-0.5">Word moderno</span>
+                                </div>
+                                <div class="bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 p-2.5 rounded-xl">
+                                    <i class="fa-solid fa-file-zipper text-blue-600 dark:text-blue-400 text-lg mb-1 block"></i>
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">.ODT</span>
+                                    <span class="block text-[10px] text-blue-700 dark:text-blue-400 mt-0.5">OpenDocument</span>
+                                </div>
+                                <div class="bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 p-2.5 rounded-xl">
+                                    <i class="fa-solid fa-file-pdf text-purple-600 dark:text-purple-400 text-lg mb-1 block"></i>
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">.PDF</span>
+                                    <span class="block text-[10px] text-purple-700 dark:text-purple-400 mt-0.5">Formato portátil</span>
+                                </div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Extensiones:</strong> El sufijo de tres o cuatro letras indica al sistema operativo qué aplicación debe abrir el archivo.",
+                            "<strong>Compatibilidad:</strong> Los formatos abiertos (.odt) garantizan la preservación digital a largo plazo.",
+                            "<strong>Seguridad:</strong> Los formatos de lectura fija (.pdf) evitan alteraciones accidental del contenido."
+                        ],
+                        boxTitle: "Jerarquía de Directorios",
+                        boxContent: "$$\\text{Carpetas} \\rightarrow \\text{Subcarpetas} \\rightarrow \\text{Archivos de Trabajo}$$"
+                    },
+                    {
+                        tag: "3. Organización Eficiente",
+                        heading: "Buenas Prácticas en la Estructura de Directorios",
+                        htmlVisual: `
+                            <div class="space-y-2 text-xs my-2">
+                                <div class="flex items-center gap-3 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                                    <span class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center text-[10px]">1</span>
+                                    <div><strong>Nomenclatura Clara:</strong> Utilizar nombres descriptivos sin espacios ni caracteres especiales (ej. <i>reporte_practica_3.docx</i>).</div>
+                                </div>
+                                <div class="flex items-center gap-3 p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg">
+                                    <span class="w-6 h-6 rounded-full bg-amber-600 text-white font-bold flex items-center justify-center text-[10px]">2</span>
+                                    <div><strong>Respaldo Periódico:</strong> Copiar archivos importantes en unidades externas o servicios en la nube.</div>
+                                </div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Estructura Árbol:</strong> Organizar por materias, parciales y actividades facilita la localización inmediata.",
+                            "<strong>Evitar Redundancias:</strong> Mantener una única versión oficial y eliminar archivos temporales obsoletos."
+                        ],
+                        boxTitle: "Organización Documental",
+                        boxContent: "$$\\text{Estructura Óptima} = \\text{Nombres Claros} + \\text{Respaldos Cloud}$$"
+                    },
+                    {
+                        tag: "4. Aplicación Práctica",
+                        heading: "La Importancia del Bloque 1 en el DGB",
+                        htmlVisual: `
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl text-xs space-y-1">
+                                <span class="font-bold text-amber-800 dark:text-amber-300 block"><i class="fa-solid fa-laptop"></i> Habilidad Digital:</span>
+                                <p class="text-slate-700 dark:text-slate-300">Todo estudiante de bachillerato debe ser capaz de gestionar y respaldar sus archivos académicos sin pérdida de información.</p>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Base Tecnológica:</strong> Prepara al alumno para el uso avanzado de procesadores de texto.",
+                            "<strong>Conclusión:</strong> Un archivo bien organizado ahorra tiempo y previene contratiempos escolares."
+                        ],
+                        boxTitle: "Resumen Formativo",
+                        boxContent: "Gestionar archivos es el primer paso hacia la productividad digital."
+                    }
+                ]
+            },
+            {
+                unitId: 2,
+                badge: "Bloque 02",
+                title: "Edición y Formato Avanzado de Documentos",
+                subtitle: "Tipografía, párrafos, márgenes y jerarquía visual",
+                speakerNote: "Enfatizar que el diseño tipográfico debe favorecer la lectura rápida y formal.",
+                slides: [
+                    {
+                        tag: "1. Tipografía y Legibilidad",
+                        heading: "Selección de Fuentes y Estilos Tipográficos",
+                        htmlVisual: `
+                            <div class="grid grid-cols-2 gap-2 text-center text-xs my-2">
+                                <div class="p-2 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg font-serif">
+                                    <strong>Serif (Con remates)</strong>
+                                    <span class="block text-[10px] text-slate-600 dark:text-slate-400">Times New Roman, Georgia (Textos largos)</span>
+                                </div>
+                                <div class="p-2 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-lg font-sans">
+                                    <strong>Sans-Serif (Palo seco)</strong>
+                                    <span class="block text-[10px] text-slate-600 dark:text-slate-400">Arial, Inter, Calibri (Pantallas / Títulos)</span>
+                                </div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Jerarquía Visual:</strong> El tamaño y peso de la fuente indican la importancia de cada sección.",
+                            "<strong>Consistencia:</strong> No utilizar más de dos familias tipográficas distintas en un mismo documento académico."
+                        ],
+                        boxTitle: "Norma de Estilo",
+                        boxContent: "$$\\text{Tipografía Formal} \\implies \\text{12 pt, Negro / Gris Oscuro}$$"
+                    },
+                    {
+                        tag: "2. Párrafos y Espaciado",
+                        heading: "Interlineado y Alineación en Trabajos DGB",
+                        htmlVisual: `
+                            <div class="p-3 bg-slate-100 dark:bg-slate-900 rounded-xl text-xs space-y-1 my-2">
+                                <div class="font-bold text-amber-600">Alineación Justificada:</div>
+                                <p class="text-slate-600 dark:text-slate-300">Los márgenes izquierdo y derecho quedan perfectamente alineados, dando un aspecto sumamente formal y profesional a los reportes académicos.</p>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Interlineado 1.5:</strong> Espacio estándar solicitado en la mayoría de reportes e investigaciones escolares.",
+                            "<strong>Sangría de Párrafo:</strong> Aplicar sangría en la primera línea facilita la distinción entre párrafos consecutivos."
+                        ],
+                        boxTitle: "Espaciado Recomendado",
+                        boxContent: "$$\\text{Interlineado} = 1.5 \\quad | \\quad \\text{Espacio posterior} = 6\\text{ pt}$$"
+                    },
+                    {
+                        tag: "3. Márgenes y Configuración",
+                        heading: "Márgenes Estándar para Documentos Académicos",
+                        htmlVisual: `
+                            <div class="grid grid-cols-4 gap-2 text-center text-xs my-2">
+                                <div class="p-2 bg-white dark:bg-slate-900 border rounded">Superior: 2.5 cm</div>
+                                <div class="p-2 bg-white dark:bg-slate-900 border rounded">Inferior: 2.5 cm</div>
+                                <div class="p-2 bg-white dark:bg-slate-900 border rounded">Izquierdo: 3 cm</div>
+                                <div class="p-2 bg-white dark:bg-slate-900 border rounded">Derecho: 2.5 cm</div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Margen Izquierdo Amplio:</strong> Permite realizar encuadernados o empastados sin obstruir el texto.",
+                            "<strong>Orientación:</strong> Vertical (Retrato) para documentos de texto y Horizontal (Paisaje) para tablas anchas."
+                        ],
+                        boxTitle: "Márgenes APA / DGB",
+                        boxContent: "$$2.54\\text{ cm en todos lados (o 3 cm izquierdo)}$$"
+                    },
+                    {
+                        tag: "4. Presentación Visual",
+                        heading: "Impacto del Formato en la Calificación",
+                        htmlVisual: `
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl text-xs">
+                                Un documento bien formateado demuestra rigor, orden y respeto por el lector.
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Claridad:</strong> Facilita la evaluación por parte del profesor.",
+                            "<strong>Conclusión:</strong> El contenido excelente merece una presentación impecable."
+                        ],
+                        boxTitle: "Regla de Oro",
+                        boxContent: "Formato limpio = Lectura fluida y profesional."
+                    }
+                ]
+            },
+            {
+                unitId: 3,
+                badge: "Bloque 03",
+                title: "Inserción de Tablas, Imágenes y Objetos Multimedia",
+                subtitle: "Organización de datos tabulares, gráficos y numeración",
+                speakerNote: "Explicar cómo las tablas estructuran la información compleja de manera comprensible.",
+                slides: [
+                    {
+                        tag: "1. Estructura de Tablas",
+                        heading: "Diseño y Formato Profesional de Tablas",
+                        htmlVisual: `
+                            <div class="p-3 bg-slate-900 text-white rounded-xl text-xs my-2 text-center font-mono">
+                                📊 Tabla 1: Comparativa de Procesadores de Texto
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Encabezados Claros:</strong> La primera fila debe destacar con fondo sombreado y texto en negrita.",
+                            "<strong>Alineación de Datos:</strong> Textos alineados a la izquierda; números y cantidades alineados a la derecha."
+                        ],
+                        boxTitle: "Estructura Tabular",
+                        boxContent: "$$\\text{Filas y Columnas} \\implies \\text{Organización de Datos}$$"
+                    },
+                    {
+                        tag: "2. Imágenes y Objetos",
+                        heading: "Alineación y Ajuste de Imágenes en el Texto",
+                        htmlVisual: `
+                            <div class="grid grid-cols-2 gap-2 text-xs my-2 text-center">
+                                <div class="p-2 bg-white dark:bg-slate-900 border rounded">En línea con el texto</div>
+                                <div class="p-2 bg-white dark:bg-slate-900 border rounded">Estrecho / Cuadrado</div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Ajuste de Texto:</strong> Permite que las palabras fluyan alrededor de las imágenes de forma armónica.",
+                            "<strong>Pie de Figura:</strong> Toda imagen debe incluir un título descriptivo numerado."
+                        ],
+                        boxTitle: "Elementos Gráficos",
+                        boxContent: "$$\\text{Imagen} + \\text{Pie de Figura} = \\text{Referencia Clara}$$"
+                    },
+                    {
+                        tag: "3. Encabezados y Pies",
+                        heading: "Numeración Automática de Páginas",
+                        htmlVisual: `
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-center">
+                                Pág. [X] de [Y] • Título del Documento Académico
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Encabezado:</strong> Contiene el título abreviado del trabajo o la sección vigente.",
+                            "<strong>Pie de Página:</strong> Incluye la numeración de página de forma automatizada."
+                        ],
+                        boxTitle: "Automatización",
+                        boxContent: "$$Page \\; X \\; of \\; Y$$"
+                    },
+                    {
+                        tag: "4. Conclusión Multimedia",
+                        heading: "Síntesis Visual de la Información",
+                        htmlVisual: `
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl text-xs">
+                                Los objetos multimedia enriquecen el documento sin saturarlo.
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Equilibrio:</strong> Menos texto plano, mejor estructuración visual.",
+                            "<strong>Conclusión:</strong> Los apoyos visuales multiplican el impacto del reporte."
+                        ],
+                        boxTitle: "Impacto Visual",
+                        boxContent: "Datos organizados = Mayor retención de conocimiento."
+                    }
+                ]
+            },
+            {
+                unitId: 4,
+                badge: "Bloque 04",
+                title: "Estilos Predeterminados y Referencias APA",
+                subtitle: "Estructura de títulos, índices automáticos y citación bibliográfica",
+                speakerNote: "Enfatizar la importancia de evitar el plagio académico utilizando correctamente las normas APA.",
+                slides: [
+                    {
+                        tag: "1. Estilos y Jerarquía",
+                        heading: "Uso de Estilos Título 1, Título 2 y Párrafo",
+                        htmlVisual: `
+                            <div class="p-3 bg-slate-900 text-white rounded-xl text-xs my-2 space-y-1">
+                                <div class="text-base font-bold text-amber-400">Heading 1: Título Principal</div>
+                                <div class="text-sm font-semibold text-orange-300 pl-4">Heading 2: Subsección</div>
+                                <div class="text-xs text-slate-300 pl-8">Texto normal del párrafo...</div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Automatización:</strong> Aplicar estilos nativos permite generar tablas de contenido con un solo clic.",
+                            "<strong>Uniformidad:</strong> Garantiza que todos los títulos mantengan el mismo formato tipográfico."
+                        ],
+                        boxTitle: "Jerarquía de Estilos",
+                        boxContent: "$$\\text{Título 1} \\supset \\text{Título 2} \\supset \\text{Título 3}$$"
+                    },
+                    {
+                        tag: "2. Tablas de Contenido",
+                        heading: "Generación Automática de Índices",
+                        htmlVisual: `
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-center font-mono">
+                                Índice General ........................ Pág. 1<br>1. Introducción ......................... Pág. 3
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Actualización Dinámica:</strong> Si cambian las páginas, el índice se actualiza automáticamente.",
+                            "<strong>Estructura:</strong> Refleja fielmente la organización del documento."
+                        ],
+                        boxTitle: "Índice Automático",
+                        boxContent: "$$\\text{Actualizar campos} \\implies \\text{Índice al día}$$"
+                    },
+                    {
+                        tag: "3. Normas APA 7.ª Edición",
+                        heading: "Citas Parentéticas y Referencias Bibliográficas",
+                        htmlVisual: `
+                            <div class="p-3 bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 rounded-xl text-xs">
+                                <strong>Cita:</strong> (Pérez Gómez, 2023)<br>
+                                <strong>Referencia:</strong> Pérez Gómez, A. (2023). <i>Título</i>. Editorial.
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Ética Académica:</strong> Dar crédito a los autores originales previene el plagio.",
+                            "<strong>Formato APA:</strong> Apellido, Inicial. (Año). <i>Título de la obra</i>. Editorial."
+                        ],
+                        boxTitle: "Formato APA",
+                        boxContent: "$$(Autor, Año) \\implies \\text{Referencia Completa}$$"
+                    },
+                    {
+                        tag: "4. Conclusión Ética",
+                        heading: "Integridad en la Investigación Escolar",
+                        htmlVisual: `
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl text-xs">
+                                Citar correctamente es signo de profesionalismo académico.
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Validez:</strong> Respalda los argumentos con fuentes verificables.",
+                            "<strong>Conclusión:</strong> El respeto intelectual fortalece la ciencia y la educación."
+                        ],
+                        boxTitle: "Ética Documental",
+                        boxContent: "Transparencia + Rigor = Excelencia Académica."
+                    }
+                ]
+            },
+            {
+                unitId: 5,
+                badge: "Bloque 05",
+                title: "Combinación de Correspondencia (Mail Merge)",
+                subtitle: "Automatización de documentos masivos y bases de datos",
+                speakerNote: "Mostrar cómo vincular una lista de Excel con una carta en Word para generar múltiples documentos.",
+                slides: [
+                    {
+                        tag: "1. Concepto de Mail Merge",
+                        heading: "¿Qué es la Combinación de Correspondencia?",
+                        htmlVisual: `
+                            <div class="grid grid-cols-3 gap-2 text-center text-xs my-2 items-center">
+                                <div class="p-2 bg-amber-50 dark:bg-amber-950/40 border rounded">Plantilla Base</div>
+                                <i class="fa-solid fa-plus text-amber-600"></i>
+                                <div class="p-2 bg-blue-50 dark:bg-blue-950/40 border rounded">Base de Datos</div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Automatización:</strong> Permite fusionar un documento modelo con una lista de datos (nombres, calificaciones).",
+                            "<strong>Eficiencia:</strong> Genera cientos de constancias o invitaciones personalizadas en segundos."
+                        ],
+                        boxTitle: "Fórmula de Automatización",
+                        boxContent: "$$\\text{Plantilla} + \\text{Base de Datos} = \\text{Documentos Masivos}$$"
+                    },
+                    {
+                        tag: "2. Campos de Combinación",
+                        heading: "Inserción de Etiquetas Dinámicas",
+                        htmlVisual: `
+                            <div class="p-3 bg-slate-900 text-white rounded-xl text-xs my-2 text-center font-mono">
+                                Estimado/a «NOMBRE» «APELLIDO»:
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Etiquetas:</strong> Los campos entre corchetes o comillas angulares se reemplazan automáticamente por los datos reales.",
+                            "<strong>Precisión:</strong> Evita errores manuales en la edición repetitiva."
+                        ],
+                        boxTitle: "Campos Dinámicos",
+                        boxContent: "$$\\text{«NOMBRE»} \\rightarrow \\text{Juan Pérez}$$"
+                    },
+                    {
+                        tag: "3. Aplicación Práctica",
+                        heading: "Emisión de Constancias Escolares DGB",
+                        htmlVisual: `
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border rounded text-xs">
+                                Generación automática de constancias de acreditación para todo el grupo escolar.
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Ahorro de Tiempo:</strong> Reduce horas de trabajo administrativo a unos cuantos clics.",
+                            "<strong>Control:</strong> Mantiene el mismo formato institucional para todos los alumnos."
+                        ],
+                        boxTitle: "Utilidad Práctica",
+                        boxContent: "Productividad ofimática avanzada."
+                    },
+                    {
+                        tag: "4. Conclusión de Bloque",
+                        heading: "Dominio de la Ofimática Moderna",
+                        htmlVisual: `
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border rounded text-xs">
+                                La automatización libera tiempo para enfocarse en el análisis de la información.
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Destreza:</strong> Habilidad indispensable en el entorno laboral actual.",
+                            "<strong>Conclusión:</strong> Las herramientas masivas optimizan cualquier proceso administrativo."
+                        ],
+                        boxTitle: "Eficiencia Digital",
+                        boxContent: "Automatizar para producir más y mejor."
+                    }
+                ]
+            },
+            {
+                unitId: 6,
+                badge: "Bloque 06",
+                title: "Seguridad, Cifrado y Control de Cambios",
+                subtitle: "Protección con contraseña, firmas digitales y colaboración segura",
+                speakerNote: "Explicar la importancia de proteger los documentos institucionales contra modificaciones indebidas.",
+                slides: [
+                    {
+                        tag: "1. Seguridad Ofimática",
+                        heading: "Cifrado de Documentos con Contraseña",
+                        htmlVisual: `
+                            <div class="p-3 bg-slate-900 text-white rounded-xl text-xs my-2 text-center">
+                                <i class="fa-solid fa-lock text-amber-400 text-lg mb-1"></i>
+                                <div class="font-mono">AES-256 Bit Encryption</div>
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Confidencialidad:</strong> Impide que usuarios no autorizados abran o modifiquen documentos sensibles.",
+                            "<strong>Restricciones:</strong> Permite configurar permisos de solo lectura o solo impresión."
+                        ],
+                        boxTitle: "Protección Activa",
+                        boxContent: "$$\\text{Contraseña Fuerte} \\implies \\text{Cifrado Seguro}$$"
+                    },
+                    {
+                        tag: "2. Control de Cambios",
+                        heading: "Revisión Colaborativa y Trazabilidad",
+                        htmlVisual: `
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border rounded text-xs">
+                                Registro detallado de adiciones, eliminaciones y comentarios por autor.
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Transparencia:</strong> Cada modificación queda marcada con el nombre del revisor y la hora exacta.",
+                            "<strong>Aprobación:</strong> El autor principal puede aceptar o rechazar cada cambio de forma individual."
+                        ],
+                        boxTitle: "Trazabilidad",
+                        boxContent: "$$\\text{Historial de Edición} = \\text{Control Total}$$"
+                    },
+                    {
+                        tag: "3. Firmas Digitales",
+                        heading: "Integridad y Autenticidad Documental",
+                        htmlVisual: `
+                            <div class="p-3 bg-orange-50 dark:bg-orange-950/40 border rounded text-xs text-center font-mono">
+                                Hash SHA-256: 7f83b1657ff1fc...
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Validez Legal:</strong> Las firmas digitales garantizan que el documento no ha sido alterado desde su emisión.",
+                            "<strong>Certificación:</strong> Avala la autenticidad institucional."
+                        ],
+                        boxTitle: "Firma Digital",
+                        boxContent: "$$\\text{Integridad} + \\text{Autenticidad}$$"
+                    },
+                    {
+                        tag: "4. Cierre del Curso",
+                        heading: "Competencia Profesional Consolidada",
+                        htmlVisual: `
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/30 border rounded text-xs">
+                                Has completado los 6 bloques de la asignatura de Gestión de Archivos de Texto.
+                            </div>
+                        `,
+                        bullets: [
+                            "<strong>Perfil de Egreso:</strong> Dominio integral de procesadores, normas APA y seguridad documental.",
+                            "<strong>Conclusión:</strong> Listo para enfrentar retos académicos y profesionales con excelencia."
+                        ],
+                        boxTitle: "Meta Alcanzada",
+                        boxContent: "¡Gestión profesional de textos completada con éxito!"
+                    }
+                ]
+            }
+        ];
+
+        const quizData = [
+            {
+                id: 1,
+                question: "¿Cuál es la principal característica que distingue a un archivo de texto plano (.txt) de un procesador de palabras (.docx)?",
+                options: [
+                    "El archivo de texto plano no puede guardarse en la computadora.",
+                    "El texto plano almacena únicamente caracteres legibles sin formato tipográfico ni estilos complejos.",
+                    "El archivo .docx solo sirve para hacer cálculos matemáticos.",
+                    "No existe ninguna diferencia técnica entre ambos."
+                ],
+                correct: 1
+            },
+            {
+                id: 2,
+                question: "En la configuración de formato para un trabajo académico DGB, ¿cuál es el interlineado estándar comúnmente solicitado?",
+                options: [
+                    "Interlineado simple (1.0)",
+                    "Interlineado 1.5",
+                    "Interlineado triple (3.0)",
+                    "Sin interlineado"
+                ],
+                correct: 1
+            },
+            {
+                id: 3,
+                question: "¿Para qué sirve principalmente la herramienta de Combinación de Correspondencia (Mail Merge)?",
+                options: [
+                    "Para comprimir archivos pesados en formato ZIP.",
+                    "Para generar de manera automatizada múltiples documentos personalizados a partir de una plantilla y una base de datos.",
+                    "Para corregir faltas de ortografía automáticamente en todo el equipo.",
+                    "Para convertir texto a formato PDF."
+                ],
+                correct: 1
+            },
+            {
+                id: 4,
+                question: "Según el formato APA 7.ª edición, ¿cómo debe estructurarse una cita parentética básica en el texto?",
+                options: [
+                    "(Título del libro, Año)",
+                    "(Apellido del Autor, Año)",
+                    "(Editorial, Página)",
+                    "(URL del sitio web)"
+                ],
+                correct: 1
+            },
+            {
+                id: 5,
+                question: "¿Qué utilidad tiene aplicar estilos predeterminados (Título 1, Título 2) en un procesador de textos?",
+                options: [
+                    "Ninguna, solo cambia el color de la pantalla.",
+                    "Permiten generar índices o tablas de contenido automáticas y mantener uniformidad visual.",
+                    "Bloquean el documento para que nadie más pueda leerlo.",
+                    "Reducen el espacio en disco duro del equipo."
+                ],
+                correct: 1
+            },
+            {
+                id: 6,
+                question: "¿Cuál es la función principal del Control de Cambios en un documento compartido?",
+                options: [
+                    "Borrar todo el contenido automáticamente a medianoche.",
+                    "Registrar de forma trazable cada modificación, adición o eliminación realizada por los revisores.",
+                    "Cambiar la contraseña del sistema operativo.",
+                    "Imprimir copias físicas en red."
+                ],
+                correct: 1
+            }
+        ];
+
+        let currentTab = 'tab-curriculum';
+        let currentPresUnit = 1;
+        let currentSlideIndex = 0;
+        let isFullscreenPres = false;
+        let currentLabUnit = 1;
+        let quizAnswers = {};
+
+        // Initialization on Load
+        window.addEventListener('DOMContentLoaded', () => {
+            renderCurriculumTable();
+            renderPresentationSlide();
+            renderQuiz();
+            initLabViews();
+            analyzeTextFile();
+            updateDocumentPreview();
+            renderInteractiveTable();
+            generateApaReference();
+            runMailMerge();
+            simulateEncryption();
+            updateGlobalProgress();
+            
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ],
+                    throwOnError: false
+                });
+            }
+        });
+
+        // Theme Toggle
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            const iconEl = document.getElementById('theme-icon');
+            
+            if (htmlEl.classList.contains('dark')) {
+                htmlEl.classList.remove('dark');
+                iconEl.className = 'fa-solid fa-sun text-amber-500 text-[10px]';
+            } else {
+                htmlEl.classList.add('dark');
+                iconEl.className = 'fa-solid fa-moon text-indigo-300 text-[10px]';
+            }
+        }
+
+        // Tab Switching
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.className = "tab-btn px-4 py-2.5 text-sm font-medium rounded-t-lg transition flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800";
+            });
+
+            document.getElementById(tabId).classList.remove('hidden');
+            const activeBtn = document.getElementById('btn-' + tabId);
+            activeBtn.className = "tab-btn px-4 py-2.5 text-sm font-medium rounded-t-lg transition flex items-center gap-2 bg-amber-600 text-white shadow-sm";
+            
+            currentTab = tabId;
+        }
+
+        // Curriculum Table
+        function renderCurriculumTable() {
+            const tbody = document.getElementById('curriculum-table-body');
+            const searchTerm = document.getElementById('table-search')?.value.toLowerCase() || '';
+            const statusFilter = document.getElementById('status-filter')?.value || 'all';
+
+            tbody.innerHTML = '';
+
+            curriculumData.forEach((item, index) => {
+                if (statusFilter === 'completed' && !item.completed) return;
+                if (statusFilter === 'pending' && item.completed) return;
+
+                const matchText = (item.proposito + ' ' + item.contenidos.join(' ')).toLowerCase();
+                if (searchTerm && !matchText.includes(searchTerm)) return;
+
+                const tr = document.createElement('tr');
+                tr.className = item.completed 
+                    ? "bg-amber-50/60 dark:bg-amber-950/20 hover:bg-amber-100/60 dark:hover:bg-amber-950/30 transition-colors"
+                    : "hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors";
+
+                tr.innerHTML = `
+                    <td class="py-4 px-4 sm:px-6 text-center font-bold text-amber-600 dark:text-amber-400">#${item.id}</td>
+                    <td class="py-4 px-4 sm:px-6 text-slate-800 dark:text-slate-200 font-medium leading-relaxed">${item.proposito}</td>
+                    <td class="py-4 px-4 sm:px-6">
+                        <ul class="list-disc list-inside space-y-1 text-xs text-slate-600 dark:text-slate-300">
+                            ${item.contenidos.map(c => `<li>${c}</li>`).join('')}
+                        </ul>
+                    </td>
+                    <td class="py-4 px-4 sm:px-6 text-center">
+                        <button onclick="toggleCurriculumComplete(${item.id})" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 mx-auto ${item.completed ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300 border border-amber-300 dark:border-amber-500/30' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-amber-600 hover:text-white'}">
+                            <i class="fa-solid ${item.completed ? 'fa-check' : 'fa-circle-check'}"></i>
+                            <span>${item.completed ? 'Completado' : 'Marcar'}</span>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            updateGlobalProgress();
+        }
+
+        function toggleCurriculumComplete(id) {
+            const item = curriculumData.find(c => c.id === id);
+            if (item) {
+                item.completed = !item.completed;
+                renderCurriculumTable();
+            }
+        }
+
+        function filterCurriculumTable() {
+            renderCurriculumTable();
+        }
+
+        function updateGlobalProgress() {
+            const completedCount = curriculumData.filter(c => c.completed).length;
+            const textEl = document.getElementById('global-progress-text');
+            if (textEl) {
+                textEl.innerText = `${completedCount} / 6 Unidades`;
+            }
+        }
+
+        // Presentations Logic
+        function selectPresentationUnit(unitId) {
+            currentPresUnit = unitId;
+            currentSlideIndex = 0;
+
+            document.querySelectorAll('.pres-nav-btn').forEach((btn, idx) => {
+                if (idx + 1 === unitId) {
+                    btn.className = "pres-nav-btn p-3 rounded-xl border text-left transition flex flex-col justify-between h-20 bg-amber-600 text-white border-amber-500 shadow-md";
+                    btn.querySelector('span:first-child').className = "text-[10px] uppercase font-bold text-amber-200";
+                } else {
+                    btn.className = "pres-nav-btn p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-400 text-left transition flex flex-col justify-between h-20";
+                    btn.querySelector('span:first-child').className = "text-[10px] uppercase font-bold text-slate-400";
+                }
+            });
+
+            renderPresentationSlide();
+        }
+
+        function renderPresentationSlide() {
+            const pres = presentationsData.find(p => p.unitId === currentPresUnit);
+            if (!pres) return;
+
+            const slide = pres.slides[currentSlideIndex];
+
+            document.getElementById('pres-unit-badge').innerText = pres.badge;
+            document.getElementById('pres-class-title').innerText = pres.title;
+            document.getElementById('pres-class-subtitle').innerText = pres.subtitle;
+            document.getElementById('pres-slide-indicator').innerText = `Diapositiva ${currentSlideIndex + 1} / ${pres.slides.length}`;
+            document.getElementById('pres-speaker-note').innerText = pres.speakerNote;
+
+            document.getElementById('btn-prev-slide').disabled = currentSlideIndex === 0;
+            document.getElementById('btn-next-slide').disabled = currentSlideIndex === pres.slides.length - 1;
+
+            const area = document.getElementById('slide-content-area');
+            area.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300 rounded-md border border-amber-200 dark:border-amber-500/30">${slide.tag}</span>
+                        <span class="text-xs text-slate-400 font-mono">Bloque ${currentPresUnit} • Diapositiva ${currentSlideIndex + 1}</span>
+                    </div>
+                    <h4 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">${slide.heading}</h4>
+                    ${slide.htmlVisual}
+                    <ul class="space-y-2 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                        ${slide.bullets.map(b => `<li class="flex items-start gap-2"><i class="fa-solid fa-check text-amber-600 dark:text-amber-400 mt-1"></i><span>${b}</span></li>`).join('')}
+                    </ul>
+                </div>
+                <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700/80 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs">
+                    <span class="font-semibold text-slate-600 dark:text-slate-400">${slide.boxTitle}</span>
+                    <span class="font-bold text-amber-600 dark:text-amber-400">${slide.boxContent}</span>
+                </div>
+            `;
+
+            if (window.renderMathInElement) {
+                renderMathInElement(area, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ],
+                    throwOnError: false
+                });
+            }
+        }
+
+        function nextSlide() {
+            const pres = presentationsData.find(p => p.unitId === currentPresUnit);
+            if (pres && currentSlideIndex < pres.slides.length - 1) {
+                currentSlideIndex++;
+                renderPresentationSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                renderPresentationSlide();
+            }
+        }
+
+        function toggleFullscreenPresentation() {
+            isFullscreenPres = !isFullscreenPres;
+            const box = document.getElementById('presentation-deck-box');
+            const icon = document.getElementById('fullscreen-icon');
+            const text = document.getElementById('fullscreen-text');
+
+            if (isFullscreenPres) {
+                box.classList.add('presentation-fullscreen');
+                icon.className = "fa-solid fa-compress";
+                text.innerText = "Salir de Pantalla Completa";
+            } else {
+                box.classList.remove('presentation-fullscreen');
+                icon.className = "fa-solid fa-expand";
+                text.innerText = "Pantalla Completa";
+            }
+        }
+
+        // Interactive Labs Logic
+        function initLabViews() {
+            switchLabUnit(1);
+        }
+
+        function switchLabUnit(unitNum) {
+            currentLabUnit = unitNum;
+            document.querySelectorAll('.unit-lab-btn').forEach((btn, idx) => {
+                if (idx + 1 === unitNum) {
+                    btn.className = "unit-lab-btn bg-amber-600 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-2 shadow-sm";
+                } else {
+                    btn.className = "unit-lab-btn bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition flex items-center gap-2";
+                }
+            });
+
+            document.querySelectorAll('.unit-lab-view').forEach((view, idx) => {
+                if (idx + 1 === unitNum) {
+                    view.classList.remove('hidden');
+                } else {
+                    view.classList.add('hidden');
+                }
+            });
+        }
+
+        // Lab 1: Text File Analyzer
+        function analyzeTextFile() {
+            const text = document.getElementById('lab1-textarea').value;
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const chars = text.length;
+            const paragraphs = text.split(/\n+/).filter(p => p.trim().length > 0).length;
+            const sizeBytes = new Blob([text]).size;
+
+            document.getElementById('stat-words').innerText = words;
+            document.getElementById('stat-chars').innerText = chars;
+            document.getElementById('stat-paragraphs').innerText = paragraphs;
+            document.getElementById('stat-size').innerText = sizeBytes + ' bytes';
+        }
+
+        function loadSampleText() {
+            document.getElementById('lab1-textarea').value = "Informe de Práctica Académica DGB.\nMateria: Gestión de Archivos de Texto.\nEstudiante: Alumno de 3er Semestre.\n\nEl procesamiento digital de documentos requiere orden, claridad en los párrafos y cumplimiento estricto de las normas APA para referencias bibliográficas.";
+            analyzeTextFile();
+        }
+
+        // Lab 2: Formatting Simulator
+        let currentAlignment = 'justify';
+        function setAlign(align) {
+            currentAlignment = align;
+            document.getElementById('preview-paragraph').style.textAlign = align;
+        }
+
+        function updateDocumentPreview() {
+            const font = document.getElementById('lab2-font').value;
+            const size = document.getElementById('lab2-size').value;
+            const lh = document.getElementById('lab2-lineheight').value;
+
+            const box = document.getElementById('document-preview-box');
+            box.style.fontFamily = font;
+            box.style.fontSize = size;
+            box.style.lineHeight = lh;
+        }
+
+        // Lab 3: Tables Generator
+        function renderInteractiveTable() {
+            const rows = parseInt(document.getElementById('table-rows').value) || 3;
+            const cols = parseInt(document.getElementById('table-cols').value) || 3;
+            const style = document.getElementById('table-style').value;
+
+            let headerBg = 'bg-amber-600 text-white';
+            if (style === 'modern') headerBg = 'bg-slate-900 text-white';
+            if (style === 'striped') headerBg = 'bg-orange-700 text-white';
+
+            let html = `<table class="w-full text-left border-collapse text-xs"><thead><tr class="${headerBg}">`;
+            for (let c = 0; c < cols; c++) {
+                html += `<th class="p-2 border border-slate-300 dark:border-slate-700">Columna ${c + 1}</th>`;
+            }
+            html += `</tr></thead><tbody>`;
+
+            for (let r = 0; r < rows; r++) {
+                const rowBg = (style === 'striped' && r % 2 === 1) ? 'bg-slate-100 dark:bg-slate-850' : '';
+                html += `<tr class="${rowBg}">`;
+                for (let c = 0; c < cols; c++) {
+                    html += `<td class="p-2 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200">Dato [${r+1},${c+1}]</td>`;
+                }
+                html += `</tr>`;
+            }
+            html += `</tbody></table>`;
+
+            document.getElementById('table-container').innerHTML = html;
+        }
+
+        // Lab 4: APA Generator
+        function generateApaReference() {
+            const type = document.getElementById('apa-type').value;
+            const author = document.getElementById('apa-author').value || 'Pérez, A.';
+            const year = document.getElementById('apa-year').value || '2023';
+            const title = document.getElementById('apa-title').value || 'Título de la Obra';
+            const publisher = document.getElementById('apa-publisher').value || 'Editorial DGB';
+
+            const lastAuthorName = author.split(',')[0].trim();
+            document.getElementById('apa-intext').innerText = `(${lastAuthorName}, ${year})`;
+
+            let refText = `${author} (${year}). <i>${title}</i>. ${publisher}.`;
+            document.getElementById('apa-reference').innerHTML = refText;
+        }
+
+        // Lab 5: Mail Merge
+        const recipients = [
+            { name: "María Fernanda López", grade: "9.5" },
+            { name: "Carlos Alberto Ramírez", grade: "10.0" },
+            { name: "Sofía Guadalupe Hernández", grade: "8.8" }
+        ];
+
+        function runMailMerge() {
+            const template = document.getElementById('mail-template').value;
+            const idx = parseInt(document.getElementById('recipient-select').value) || 0;
+            const rec = recipients[idx];
+
+            let output = template
+                .replace(/\[NOMBRE\]/g, rec.name)
+                .replace(/\[CALIFICACION\]/g, rec.grade);
+
+            document.getElementById('mail-output').innerText = output;
+        }
+
+        // Lab 6: Security
+        function simulateEncryption() {
+            const pass = document.getElementById('doc-password').value;
+            const status = document.getElementById('encryption-status');
+            if (pass.length >= 4) {
+                status.className = "p-3 bg-amber-100 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-500/30 rounded-lg text-amber-800 dark:text-amber-300 font-semibold";
+                status.innerHTML = `<i class="fa-solid fa-lock"></i> Documento cifrado con AES-256 bits (Seguro)`;
+            } else {
+                status.className = "p-3 bg-orange-100 dark:bg-orange-500/10 border border-orange-300 dark:border-orange-500/30 rounded-lg text-orange-800 dark:text-orange-300 font-semibold";
+                status.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Contraseña demasiado corta (Riesgo de seguridad)`;
+            }
+        }
+
+        // Quiz Logic
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+
+            quizData.forEach((q, qIndex) => {
+                const div = document.createElement('div');
+                div.className = "p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3";
+                div.innerHTML = `
+                    <h4 class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">Pregunta ${qIndex + 1}: ${q.question}</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="q-options-${qIndex}">
+                        ${q.options.map((opt, optIndex) => `
+                            <button onclick="answerQuiz(${qIndex}, ${optIndex})" id="q${qIndex}-opt${optIndex}" class="p-2.5 text-left text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition">
+                                ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            updateQuizScore();
+        }
+
+        function answerQuiz(qIndex, optIndex) {
+            quizAnswers[qIndex] = optIndex;
+            const q = quizData[qIndex];
+
+            q.options.forEach((_, i) => {
+                const btn = document.getElementById(`q${qIndex}-opt${i}`);
+                btn.className = "p-2.5 text-left text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-500 transition";
+                if (i === optIndex) {
+                    if (i === q.correct) {
+                        btn.className += " bg-amber-100 dark:bg-amber-500/20 border-amber-500 text-amber-800 dark:text-amber-200 font-semibold";
+                    } else {
+                        btn.className += " bg-rose-100 dark:bg-rose-500/20 border-rose-500 text-rose-800 dark:text-rose-200 font-semibold";
+                    }
+                } else if (i === q.correct) {
+                    btn.className += " border-amber-400 dark:border-amber-600 bg-amber-50/50 dark:bg-amber-950/20";
+                }
+            });
+            updateQuizScore();
+        }
+
+        function updateQuizScore() {
+            let score = 0;
+            quizData.forEach((q, idx) => {
+                if (quizAnswers[idx] === q.correct) score++;
+            });
+            document.getElementById('quiz-score').innerText = `${score} / ${quizData.length}`;
+            const banner = document.getElementById('quiz-feedback-banner');
+            if (score === quizData.length) {
+                banner.innerText = "¡Excelente! Has dominado todos los conceptos clave de la asignatura.";
+                banner.className = "text-xs font-bold text-amber-600 dark:text-amber-400";
+            } else {
+                banner.innerText = "Continúa respondiendo las preguntas para evaluar tu avance.";
+                banner.className = "text-xs font-semibold text-slate-500 dark:text-slate-400";
+            }
+        }
+
+        function resetQuiz() {
+            quizAnswers = {};
+            renderQuiz();
+        }
+
+        // AI Tutor Logic
+        function sendSuggestedPrompt(text) {
+            document.getElementById('ai-user-input').value = text;
+            sendAiMessage();
+        }
+
+        function handleAiKeyPress(e) {
+            if (event.key === 'Enter') {
+                sendAiMessage();
+            }
+        }
+
+        function sendAiMessage() {
+            const input = document.getElementById('ai-user-input');
+            const question = input.value.trim();
+            if (!question) return;
+
+            const history = document.getElementById('ai-chat-history');
+
+            // User Bubble
+            const userMsg = document.createElement('div');
+            userMsg.className = "flex items-start justify-end gap-3";
+            userMsg.innerHTML = `
+                <div class="bg-amber-600 text-white p-3.5 rounded-2xl rounded-tr-none text-xs sm:text-sm max-w-[85%] leading-relaxed shadow-sm">
+                    ${escapeHtml(question)}
+                </div>
+                <div class="w-8 h-8 rounded-lg bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300 text-sm">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+            `;
+            history.appendChild(userMsg);
+            input.value = '';
+            history.scrollTop = history.scrollHeight;
+
+            // AI Response simulation
+            setTimeout(() => {
+                let aiResponse = "Excelente pregunta sobre gestión de documentos. En los procesadores de texto y sistemas DGB, es fundamental mantener la estructura limpia, utilizar estilos y aplicar normas APA rigurosas.";
+                
+                const qLower = question.toLowerCase();
+                if (qLower.includes('txt') || qLower.includes('rtf')) {
+                    aiResponse = "La diferencia principal radica en que el formato **TXT** almacena texto plano sin ningún tipo de metadatos de estilo, mientras que el formato **RTF** (Rich Text Format) o **DOCX** incluye información sobre fuentes, colores, márgenes e imágenes incrustadas.";
+                } else if (qLower.includes('apa') || qLower.includes('referencias')) {
+                    aiResponse = "Según las **Normas APA 7.ª edición**, una referencia bibliográfica completa incluye: *Apellido, Inicial. (Año). Título de la obra. Editorial.* Y en el texto se cita de forma parentética colocando (Apellido, Año).";
+                } else if (qLower.includes('correspondencia') || qLower.includes('mail merge')) {
+                    aiResponse = "La **combinación de correspondencia** vincula una plantilla de documento maestro (por ejemplo, una constancia) con una base de datos o lista de Excel (con nombres y calificaciones), generando automáticamente documentos personalizados para cada registro.";
+                } else if (qLower.includes('seguridad') || qLower.includes('contraseña')) {
+                    aiResponse = "Para proteger un archivo de texto, puedes utilizar cifrado AES-256 bits estableciendo una contraseña de apertura en las opciones de guardado del procesador, impidiendo así accesos o modificaciones no autorizadas.";
+                }
+
+                const aiMsg = document.createElement('div');
+                aiMsg.className = "flex items-start gap-3";
+                aiMsg.innerHTML = `
+                    <div class="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-600/30 border border-amber-200 dark:border-amber-500/40 flex items-center justify-center text-amber-600 dark:text-amber-400 text-sm">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-3.5 rounded-2xl rounded-tl-none border border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-800 dark:text-slate-200 max-w-[85%] leading-relaxed shadow-sm">
+                        ${aiResponse}
+                    </div>
+                `;
+                history.appendChild(aiMsg);
+                history.scrollTop = history.scrollHeight;
+
+                if (window.renderMathInElement) {
+                    renderMathInElement(history, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false}
+                        ],
+                        throwOnError: false
+                    });
+                }
+            }, 600);
+        }
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+    </script>
+</body>
+</html>
